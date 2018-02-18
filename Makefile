@@ -16,9 +16,9 @@ HDRS := $(wildcard src/*.h)
 OBJS := $(patsubst src/%.cpp,build/%.o,$(SRCS))
 OBJSARM := $(patsubst src/%.cpp,armbuild/%.o,$(SRCS))
 #LIBRARIESARM just pulls everything out of the libs folder since -L doesnt seem to do it properly
-LIBRARIESARM := $(wildcard /usr/arm-linux-gnueabi/lib/*.so)
+LIBRARIESARM := $(wildcard /usr/arm-linux-gnueabi/lib/*.a*)
 
-all: arm local
+all: local
 
 arm: $(OBJSARM) $(HDRS) Makefile
 	@mkdir -p armbuild
