@@ -1,0 +1,17 @@
+# Title: arm.cnf
+# 
+# XCC Configureation file for the ARM cross compiler
+# for use with the IDP robots
+
+linker=arm-linux-gnueabi-g++
+compiler=arm-linux-gnueabi-g++
+
+override=yes
+
+includeflags=-I/usr/arm-linux-gnueabi/include -I~/OneDrive/Projects/Cpp/IDP/1BRobot
+libraryflags=-L/usr/arm-linux-gnueabi/lib
+libraries=-lrobot
+
+objectsuffix=arm.o
+executablesuffix=arm
+

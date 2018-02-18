@@ -1,0 +1,16 @@
+*.o
+robot
+robot.ARM
+build/
+armbuild/
+
+# Text editor Temp Files
+*~
+.#*
+*#
+
+#GGtags files for navigating in Emacs
+GTAGS
+GSYMS
+GRTAGS
+GPATH
