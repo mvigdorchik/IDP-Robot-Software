@@ -9,6 +9,9 @@ armbuild/
 .#*
 *#
 
+#ignore sh files which I use to upload things to the server more easily
+*.sh
+
 #GGtags files for navigating in Emacs
 GTAGS
 GSYMS

@@ -6,6 +6,7 @@ robot_link rlink;
 int main()
 {
 	std::cout << "test" << std::endl;
+
 #ifndef ARM
 	if(!rlink.initialise(1))
 	{
