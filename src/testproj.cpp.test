@@ -1,6 +1,7 @@
 #include <iostream>
 #include <robot_instr.h>
 #include <robot_link.h>
+#include <robot_delay.h>
 #include <stopwatch.h>
 
 #define ROBOT_NUM 2
@@ -22,22 +23,27 @@ int main()
 	    
 	    return -1;
 	}
+#endif
 #ifdef DEBUG    
 	std::cout << "Successful Connection" << std::endl;
-#endif
 #endif
 
 	int val;
 	stopwatch sw;
-	sw.start();
-	for(int i = 0; i < 500; i++)
-	{
-	    val = rlink.request(TEST_INSTRUCTION);
-	}
-	float time_taken = sw.read();
-	sw.stop();
-	std::cout << "Time taken was:" << time_taken << std::endl;
 
+	sw.start();
+	rlink.command(WRITE_PORT_3, 255);
+	val = rlink.request(READ_PORT_3);
+	int time = sw.read();
+	std::cout << "Time Taken to read sensor:" << time << std::endl;
+	std::cout << "Value read was: " << val << std::endl;
+	std::cout << "Total Time:" << sw.stop() << std::endl;
+
+	std::cout << "Doing Motor stuff" << std::endl;
+	rlink.command(MOTOR_1_GO, 63);
+	delay(5000);
+	rlink.command(MOTOR_1_GO, 0);
+	return 0;
 	/*if(val == TEST_INSTRUCTION_RESULT)
 	{
 	    std::cout << "test passed" << std::endl;
