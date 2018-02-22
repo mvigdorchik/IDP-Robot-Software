@@ -11,13 +11,14 @@ public:
     //Default constructor
     line();
     line(point P1, point P2);
-	//Accessors
+    //Accessors
     point get_start();
     point get_end();
-	int get_length();
+    int get_length();
 
 private:
     point p1, p2;
+    int l;
 };
 
 #endif // LINE_H 

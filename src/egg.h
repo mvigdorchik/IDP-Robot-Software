@@ -14,20 +14,20 @@ public:
     //Accessors
     int getX();
     int getY();
-	int get_order();
-	int get_nest();
-	int get_type();
-	unsigned char get_colour();
+    int get_nest();
+    int get_type();
+    
+    unsigned char get_colour();
 	
     //Mutators
     void set_type(int t);
     void set_colour(unsigned char c);
-	void set_nest(int nest_number);
-	void set_nest(int type, unsigned char colour, int beacon_code);
+    void set_nest(int nest_number);
+    void set_nest(int type, unsigned char colour, int beacon_code, int recycle_basket);
 	
 private:
     int xCOORD, yCOORD, type, nest_number;
-	unsigned char colour;
+    unsigned char colour;
 };
 
 #endif // EGG_H

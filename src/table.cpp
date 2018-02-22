@@ -6,7 +6,7 @@
 using namespace std;
 
 //Default constructor
-line::line():l(0)
+table::table()
 {
 	point J1, J2, J3, J4, J5, J6, D1, D2, D3, Start, JD1, JD2, JD3, JC2, H1, H2, H3, H4, H5;
 	J1 = point(300, 793);
