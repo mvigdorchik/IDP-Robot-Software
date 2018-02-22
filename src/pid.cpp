@@ -1,6 +1,6 @@
 #include "pid.h"
 
-PID::PID(double dt, int max, int min, double Kp, double Kd, double Ki):
+PID::PID(double dt, double max, double min, double Kp, double Kd, double Ki):
 	dt(dt), 
 	max(max),
 	min(min),
