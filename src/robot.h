@@ -8,10 +8,14 @@
 #include <robot_delay.h>
 #include <stopwatch.h>
 
-#define RAMP_TIME 255 //Value from 0-254 (255 is default value) to increase time to ramp up
-#define ROTATION_CALIBRATION 10 //Converts angles into motor times by multiplying, assuming max speed
-#define DISTANCE_CALIBRATION 1/127 //Converts distances into motor times, assuming speed is set to 1, so must multiply by speed
-#define FOLLOWER_GAIN 40 //determines how much line follower needs to react
+#define ROBOT_RAMP_TIME 255 //Value from 0-254 (255 is default value) to increase time to ramp up
+#define ROTATION_CALIBRATION 14 //Converts angles into motor times by multiplying, assuming max speed
+#define DISTANCE_CALIBRATION 20.0 //Converts distances into motor times, assuming speed is set to 127
+#define INERTIA_CALIBRATION 20 //Number of mm that robot travels after stopping from full speed
+#define DISTANCE_TO_CENTER 60 //Distance in mm to center of rotation from the line sensors
+#define FOLLOWER_KP 40 //determines how much line follower needs to react when one sensor off line
+#define FOLLOWER_KP2 72 //Determines how much gain when 2 sensors are off the line
+#define FOLLOWER_KI 0.2 //Integral control for the line follower
 
 extern robot_link rlink;
 
@@ -25,8 +29,10 @@ class robot
 {
 public:
     robot();
-    void follow_line_straight(int distance);
+    void follow_line_straight();
+    void take_path(int path[], int size);
     void turn_angle(int degrees);
+    void turn_to_line(bool right, bool move_forward);
     void go_time(int distance, unsigned char speed);
     unsigned char read_line_sensors();
     void go(unsigned char speed);

@@ -28,15 +28,16 @@ int main()
 	    return -1;
 	}
 #endif
-#ifdef DEBUG    
-	std::cout << "Successful Connection" << std::endl;
-#endif
+	if(DEBUG) std::cout << "Successful Connection" << std::endl;
+
+	rlink.command(RAMP_TIME, ROBOT_RAMP_TIME);
 	
 	//r.go_time(30000,127);
 	//r.turn(180);
 	stopwatch sw1;
 	sw1.start();
-	r.follow_line_straight(40000);
+	int path[5] = {2,1,1,1,1};
+	r.take_path(path, 5);
 	return 0;
 }
 
