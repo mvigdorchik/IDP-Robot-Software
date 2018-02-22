@@ -9,6 +9,7 @@ using namespace std;
 line::line():l(0)
 {
     //left blank intentionally
+    empty = true;
 }
 //Point1_Object & Point2_Object were suppose to get
 //Passed into here
@@ -21,8 +22,8 @@ line::line(point P1, point P2)
     x2 = P2.getX();
     y1 = P1.getY();
     y2 = P2.getY();
-    l = abs(x2-x1) + abs(y2-y1);
-
+    l = std::abs((float)(x2-x1)) + std::abs((float)(y2-y1));
+    empty = false;
 }
 
 //ACCESSORS
@@ -37,4 +38,9 @@ point line::get_end()
 int line::get_length()
 {
     return l;
+}
+
+bool line::is_empty()
+{
+    return empty;
 }

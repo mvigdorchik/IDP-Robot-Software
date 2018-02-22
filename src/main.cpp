@@ -34,10 +34,9 @@ int main()
 	
 	//r.go_time(30000,127);
 	//r.turn(180);
-	stopwatch sw1;
-	sw1.start();
-	int path[5] = {2,1,1,1,1};
-	r.take_path(path, 5);
+	//int path[5] = {2,0,3,1,3};
+	//r.take_path(path, 5);
+	r.follow_line_straight(1);
 	return 0;
 }
 

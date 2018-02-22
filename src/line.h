@@ -15,9 +15,11 @@ public:
     point get_start();
     point get_end();
     int get_length();
+    bool is_empty();
 
 private:
     point p1, p2;
+    bool empty;
     int l;
 };
 

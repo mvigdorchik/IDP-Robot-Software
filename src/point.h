@@ -1,6 +1,7 @@
 #ifndef POINT_H
 #define POINT_H
 #include <iostream>
+#include <vector>
 
 using namespace std;
 
@@ -13,11 +14,9 @@ public:
     //Accessors
     int getX();
     int getY();
-    //Mutators
-    void setX(int x);
-    void setY(int Y);
+
 private:
     int xCOORD, yCOORD;
-};
+   };
 
 #endif // POINT_H
