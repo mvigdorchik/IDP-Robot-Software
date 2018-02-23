@@ -36,7 +36,9 @@ int main()
 	//r.turn(180);
 	//int path[5] = {2,0,3,1,3};
 	//r.take_path(path, 5);
-	r.follow_line_straight(1);
+	//r.follow_line_straight(1);
+	stopwatch sw;
+	sw.start();
 	return 0;
 }
 
