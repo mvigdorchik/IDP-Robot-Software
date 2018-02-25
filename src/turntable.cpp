@@ -10,10 +10,10 @@ turntable::turntable()
 unsigned char turntable::read_sensor()
 {
 	unsigned char result = 0;
-	rlink.command(WRITE_PORT_1, 255);
-	result = rlink.request(READ_PORT_1);
-	result &= 0b0000001; //Ignore any other sensor on that bus. 
-	return result;
+	rlink.command(WRITE_PORT_0, 255);
+	result = rlink.request(READ_PORT_0);
+	result &= 0b0001000; //Ignore any other sensor on that bus. 
+	return result >> 3;
 }
 
 
@@ -60,11 +60,11 @@ void turntable::turn_to_nest(int current_nest, int next_nest)
 {
 	bool direction;
 	int diff = (next_nest - current_nest) < 0 ? (next_nest - current_nest + 8) : (next_nest - current_nest);
-	int direction = diff < 5 ? true : false;
+	direction = diff < 5 ? true : false;
 	int degrees = int(360 / 8 * diff) > 180 ? 360 - int(360 / 8 * diff) : int(360 / 8 * diff);
 	//std::cout << "direction: " << direction << '\n' << "degrees: " << degrees << '\n'; turn_angle_pid(direction, degrees);
-	turn_angle_pid(direction, degrees);
-	// turn_angle_time(direction, degrees);  //If you want to use the timed one, fast but not so smooth as PID
+	//turn_angle_pid(direction, degrees);
+	 turn_angle_time(direction, degrees);  //If you want to use the timed one, fast but not so smooth as PID
 }
 
 void turntable::turn_angle_pid(bool clockwise, int degrees)
@@ -75,7 +75,7 @@ void turntable::turn_angle_pid(bool clockwise, int degrees)
 
 	int val = 0;
 	double inc = 0;
-	while (abs(val-degrees) < TURNTABLE_tol && inc < TURNTABLE_tol) {
+	while (std::abs((float) (val-degrees)) < TURNTABLE_tol && inc < TURNTABLE_tol) {
 		inc = pid.calculate(degrees, val);
 		val += inc; //TODO or not: replace <<val += inc>> with actual reading from sensor
 		if (inc>0)

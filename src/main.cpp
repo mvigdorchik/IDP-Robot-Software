@@ -5,6 +5,7 @@
 #include <robot_delay.h>
 #include <stopwatch.h>
 #include "robot.h"
+#include "turntable.h"
 
 #define ROBOT_NUM 2
 #define DEBUG 1 //If defined all of the print code will run, otherwise it won't
@@ -37,8 +38,14 @@ int main()
 	//int path[5] = {2,0,3,1,3};
 	//r.take_path(path, 5);
 	//r.follow_line_straight(1);
-	stopwatch sw;
-	sw.start();
+	turntable t;
+	for (int i = 1; i <= 8; ++i)
+	{
+	    std::cout << "Entered test loop" << std::endl;
+	    t.turn_to_nest(1, i);
+	    delay(1000);
+	}
+
 	return 0;
 }
 
