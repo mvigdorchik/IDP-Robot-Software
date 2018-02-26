@@ -3,6 +3,8 @@ robot
 robot.ARM
 build/
 armbuild/
+html/
+latex/
 
 # Text editor Temp Files
 *~
