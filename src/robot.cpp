@@ -1,5 +1,5 @@
 #include "robot.h"
-
+ 
 robot::robot()
 {
     state = DEFAULT;
@@ -181,7 +181,7 @@ bool robot::turn_to_line(bool right, bool move_forward, bool delay_sensing)
     while(sensor_reading == 0)
     {
 	sensor_reading = this->read_line_sensors();
-	if(sw.read() > (330 + 30*(!delay_sensing)) * ROTATION_CALIBRATION)
+	if(sw.read() > (315 + 45*(!delay_sensing)) * ROTATION_CALIBRATION)
 	    return false;
     }
     this->go(127); //Syncs up motors so they move together

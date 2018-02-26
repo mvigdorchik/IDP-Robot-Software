@@ -56,10 +56,10 @@ void turntable::initial_align()
 	current_nest = 1;
 }
 
-void turntable::turn_to_nest(int current_nest, int next_nest)
+void turntable::turn_to_nest(int next_nest)
 {
 	bool direction;
-	int diff = (next_nest - current_nest) < 0 ? (next_nest - current_nest + 8) : (next_nest - current_nest);
+	int diff = (next_nest - this->current_nest) < 0 ? (next_nest - this->current_nest + 8) : (next_nest - this->current_nest);
 	direction = diff < 5 ? true : false;
 	int degrees = int(360 / 8 * diff) > 180 ? 360 - int(360 / 8 * diff) : int(360 / 8 * diff);
 	//std::cout << "direction: " << direction << '\n' << "degrees: " << degrees << '\n'; turn_angle_pid(direction, degrees);

@@ -18,7 +18,7 @@ OBJSARM := $(patsubst src/%.cpp,armbuild/%.o,$(SRCS))
 #LIBRARIESARM just pulls everything out of the libs folder since -L doesnt seem to do it properly
 #LIBRARIESARM := $(wildcard /usr/arm-linux-gnueabi/lib/*.a*)
 
-all: local
+all: local arm
 
 arm: $(HDRS) Makefile
 	@mkdir -p armbuild
