@@ -13,7 +13,7 @@ line::line():l(0)
 }
 //Point1_Object & Point2_Object were suppose to get
 //Passed into here
-line::line(point P1, point P2)
+line::line(point P1, point  P2)
 {
     p1 = P1;
     p2 = P2;
@@ -27,11 +27,11 @@ line::line(point P1, point P2)
 }
 
 //ACCESSORS
-point line::get_start()
+point  line::get_start()
 {
     return p1;
 }
-point line::get_end()
+point  line::get_end()
 {
     return p2;
 }

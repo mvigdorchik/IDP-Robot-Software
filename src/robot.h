@@ -7,7 +7,9 @@
 #include <robot_link.h>
 #include <robot_delay.h>
 #include <stopwatch.h>
-#include "table.h"
+#include <map>
+#include "point.h"
+#include "line.h"
 
 #define ROBOT_RAMP_TIME 255 //Value from 0-254 (255 is default value) to increase time to ramp up
 #define ROTATION_CALIBRATION 14 //Converts angles into motor times by multiplying, assuming max speed
@@ -22,6 +24,7 @@
  * Object used to send commands and receive sensor readings from the robot.
  */
 extern robot_link rlink;
+extern std::map<std::string, point> junction_points;
 
 /**
  * An enumerator that defines all of the different states available to the robot.
@@ -109,7 +112,7 @@ public:
      * Go straight for a given distance at a given speed
 
      * @param distance Distance in mm to move forward
-     * @param Speed Speed from 0-127 to go forward and 128-255 to reverse.
+     * @param speed Speed from 0-127 to go forward and 128-255 to reverse.
      */
     void go_time(int distance, unsigned char speed);
 
@@ -140,6 +143,24 @@ public:
     void go_to_line(int timeout);
 
     /**
+     * Special function to go around the curve following the line and then transfer to the line across it.
+     * This avoids having to go up a hill or in between the two blocks that the robot will not be able to
+     * fit between. It should always end up north of the blocks at the next junction.
+
+     * @pre The robot must be at the junction right before the curve facing the curve.
+     */
+    void traverse_curve();
+
+    /**
+     * Uses a slightly backwards line follow algorithm to be able to reverse.
+     * This may not be needed but it can help with leaving space to allow collection point to be refilled.
+
+     * @param distance Distance in mm that the robot should move along the line.
+     * @see follow_line_straight()
+     */
+    void line_follow_reverse(int distance);
+
+    /**
      * Turns the robot at a given speed while still maintaining the forward motion.
      * Works by slowing down the speed of the appropriate motor. It will never turn faster
      * than stopping the second motor.  
@@ -168,15 +189,17 @@ public:
     State state;
 
     /**
-     * Datastructure to store the map of the field. Completely static.
-     */
-    table map;
-
-    /**
      * The location the robot believes is its most recently visited junction.
      */
     std::string current_loc;
+
+    /**
+     * Stores the current orientation of the vehicle as an unsigned integer.
+     * 0 corresponds to west, 1 to east, 2 to north, and 3 to south.
+     */
+    unsigned char orientation;
 };
+
 
 
 #endif /* ROBOT_H */

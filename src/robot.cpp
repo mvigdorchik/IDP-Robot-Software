@@ -4,6 +4,7 @@ robot::robot()
 {
     state = DEFAULT;
     current_loc = "Start";
+    orientation = 2;
 }
 
 void robot::take_path(int path[], int size)

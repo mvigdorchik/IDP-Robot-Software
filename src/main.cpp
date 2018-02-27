@@ -12,6 +12,10 @@
 
 robot_link rlink;
 robot r;
+/**
+ * Datastructure to store the map of the field. Completely static.
+ */
+std::map<std::string, point> junctions; 
 
 int main()
 {
@@ -31,6 +35,27 @@ int main()
 #endif
 	if(DEBUG) std::cout << "Successful Connection" << std::endl;
 
+	//Define the map of the table, followed by the nodes
+	junctions["J1"] = point(300, 793);
+	junctions["J2"] = point(1200, 793);
+	junctions["J3"] = point(1200, 280);
+	junctions["J4"] = point(1810, 280);
+	junctions["J5"] = point(2100, 280);
+	junctions["J6"] = point(2100, 793);
+	junctions["D1"] = point(1790, 2350);
+	junctions["D2"] = point(1200, 2350);
+	junctions["D3"] = point(300, 2350);
+	junctions["Start"] = point(300, 280);
+	junctions["JD1"] = point(1790, 0);
+	junctions["JD2"] = point(1200, 0);
+	junctions["JD3"] = point(300, 0);
+	junctions["JC2"] = point(1733, 1543);
+	junctions["H1"] = point(300, 0);
+	junctions["H2"] = point(300, 0);
+	junctions["H3"] = point(300, 0);
+	junctions["H4"] = point(300, 0);
+	junctions["H5"] = point(300, 0); //TODO Verify measurements for points where coordinates are 0
+
 	rlink.command(RAMP_TIME, ROBOT_RAMP_TIME);
 	
 	//r.go_time(30000,127);
@@ -42,7 +67,6 @@ int main()
 	for (int i = 1; i <= 8; ++i)
 	{
 	    std::cout << "Entered test loop" << std::endl;
-	    t.turn_to_nest(1, i);
 	    delay(1000);
 	}
 
