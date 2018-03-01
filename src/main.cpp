@@ -64,12 +64,14 @@ int main()
 	//r.take_path(path, 5);
 	//r.follow_line_straight(1);
 	turntable t;
-	for (int i = 1; i <= 8; ++i)
+	/*for (int i = 1; i <= 8; ++i)
 	{
 	    std::cout << "Entered test loop" << std::endl;
 	    delay(1000);
-	}
+	}*/
 
+	t.initial_align();
+	t.turn_to_nest(5);
 	return 0;
 }
 
