@@ -34,7 +34,7 @@ int main()
 	}
 #endif
 	if(DEBUG) std::cout << "Successful Connection" << std::endl;
-
+/*
 	//Define the map of the table, followed by the nodes
 	junctions["J1"] = point(300, 793);
 	junctions["J2"] = point(1200, 793);
@@ -55,29 +55,26 @@ int main()
 	junctions["H3"] = point(300, 0);
 	junctions["H4"] = point(300, 0);
 	junctions["H5"] = point(300, 0); //TODO Verify measurements for points where coordinates are 0
-
+*/
 	rlink.command(RAMP_TIME, ROBOT_RAMP_TIME);
 	
 	//r.go_time(30000,127);
 	//r.turn(180);
-	//int path[5] = {2,0,3,1,3};
-	//r.take_path(path, 5);
-	//r.follow_line_straight(1);
 	turntable t;
-	/*for (int i = 1; i <= 8; ++i)
-	{
-	    std::cout << "Entered test loop" << std::endl;
-	    delay(1000);
-	}*/
 
-	t.initial_align();
-	t.turn_to_nest(5);
+	int path[2] = {3,0};
+	for(int i = 0; i < 3; i++)
+	{
+	    r.traverse_curve();
+	    r.take_path(path, 2);
+	    r.turn_to_line(0, true, true);
+	}
 	return 0;
 }
 
 /** \mainpage Passover Elf Software Documentation
  * 
- * \section Overall Function
+ * \section sectionid Overall Function
  * It was decided that the best approach to structuring the code is via a finite state machine like structure. 
  * This is preferred to a simple flowchart style because it allows for the existence of error states,
  * e.g. entering a new state where the AGV can recover after getting lost. Instead of drawing the entire state machine, 
@@ -136,8 +133,8 @@ int main()
  *    - If requirements satisfied and still have time, collect and recycle more eggs
  *    - If running out of time, go to Start
  *    - If raises error or is in unknown state, recover
- * \section Interface to other subsystems
- * \subsection Pin allocation on chips
+ * \section wow Interface to other subsystems
+ * \subsection hi Pin allocation on chips
  *    - Port​​ ​​0
  *        - Bit 0 - left​​ ​​IR​​ ​​line​​ ​​sensor
  *        - Bit 1 - centre​​​​ ​​IR​​ ​​line​​ ​​sensor
@@ -156,7 +153,7 @@ int main()
  *        - Motor 1 - left wheel
  *        - Motor 2 - right wheel
  *        - Motor 3 - turntable servomotor
- * \subsection Interaction between software and hardware
+ * \subsection moretest Interaction between software and hardware
  *    - IR line following Sensors
  *        - Gives binary values (0 - black, 1 - white)
  *    - Distance Sensor
@@ -171,7 +168,7 @@ int main()
  *        - Indicate the contents of what's carried
  *    - IR transceiver
  *        - Determine the mixture of eggs needed to deliver
- * \section Subsystem​​ ​​Operations​​ for ​​Basic​​ ​​Functionality​​ ​​Demonstration
+ * \section test Subsystem​​ ​​Operations​​ for ​​Basic​​ ​​Functionality​​ ​​Demonstration
  *     1. Line ​Follower
  *        -# Robot goes from S to S with the following path:
  *        -# Forward S -> J5
@@ -182,14 +179,16 @@ int main()
  *        -# Turn Left at J1
  *        -# Forward J1 -> S 
  *        -# Realign at S
- *     2. Egg ​Discriminator
- *        -# Test all 4 types of eggs and verify the correct indicator​ LEDs light up:
- *        -# Led 1 : Small Blue 
- *        -# Led 2 : Small Yellow
- *        -# Led 3 : Big Yellow
- *        -# Led 4 : Big Pink
+ *     2. Egg Placement
+ *        -# Rotate turntable to a given nest number
+ *        -# Drop egg into appropriate nest, and repeat
  *     3. Delivery Alignment and Delivery Drop
  *        -# Align the chassis at the delivery pointer
  *        -# Rotate the turntable so that the nest to be delivered is in correct position
  *        -# Action the actuator to push the nest into delivery zone
  */
+<<<<<<< a708f7667d0fc9347d53b8c1f871cba65c9b8d10
+=======
+
+
+>>>>>>> Add curve following

@@ -27,7 +27,7 @@ void robot::take_path(int path[], int size)
 	default:
 	    return; //should never happen unless function is used incorrectly
 	}
-	this->follow_line_straight(1);
+	this->follow_line_straight(10000, true);
     }
 }
 
@@ -63,7 +63,7 @@ unsigned char robot::read_line_sensors()
     return result;
 }
 
-void robot::follow_line_straight(int expected_distance)
+void robot::follow_line_straight(int expected_distance, bool recover)
 {
     stopwatch junction_timeout;
     unsigned char sensor_reading;
@@ -122,20 +122,29 @@ void robot::follow_line_straight(int expected_distance)
 	    lost_line_count = 0;
 	if(lost_line_count > MAX_LOST_LINE_COUNT)
 	{
-	    if(!(this->recover_line(this->current_loc, latest_nonzero_reading) == current_loc))
+	    if(!recover)
+	    {
+		return; //Its just lost forever, no attempt to recover
+	    }
+	    if(!(this->recover_line(current_loc, latest_nonzero_reading) == current_loc))
 	    {
 		std::cout << "IM TOTALLY LOST" << std::endl;
-		this->follow_line_straight(1);
+		this->follow_line_straight(100000, true);
 		break;
 	    }
 	    std::cout << "Im exactly where I was before" << std::endl;
-	    this->follow_line_straight(1);
+	    this->follow_line_straight(100000, true);
 
 	    return;
 	}
     }
     this->go(0);
     //this->go_time(DISTANCE_TO_CENTER, 127);
+}
+
+void robot::line_follow_reverse(int distance)
+{
+    
 }
 
 std::string robot::recover_line(std::string old_loc, unsigned char latest_reading)
@@ -148,6 +157,17 @@ std::string robot::recover_line(std::string old_loc, unsigned char latest_readin
     //Begin actually determining where it is
     this->go_to_line(10000);
     return "";
+}
+
+void robot::traverse_curve()
+{
+    this->follow_line_straight(50000, false); //TODO Figure out length of curve
+    this->turn_angle(310);
+    this->go_to_line(100000);
+    this->turn_to_line(1, true, false);
+    this->follow_line_straight(10000, true);
+
+    current_loc = "somthing"; //TODO Use correct location name
 }
 
 void robot::go(unsigned char speed)

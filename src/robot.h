@@ -67,12 +67,14 @@ public:
      * there will be some inertia and the robot will overshoot the line. This function
      * will also automatically try to adjust for losing the line and recover, and if
      * it does not rapidly recover or it has to move much more or less than expected distance,
-     * it will enter the LOST_LINE state and attempt to recover.
+     * it will enter the LOST_LINE state and attempt to recover. The parameter recover allows
+     * disabling this and considering the function complete as soon as it loses the line.
 
      * @param expected_distance the approximate distance to next line
+     * @param recover If set to false the robot will just stop if its lost, no recovery attempt.
      * @see read_line_sensors() 
      */
-    void follow_line_straight(int expected_distance);
+    void follow_line_straight(int expected_distance, bool recover);
 
     /**
      * Specify a c-style array and it size where each element is an int from 0-3
