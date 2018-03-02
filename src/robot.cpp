@@ -89,19 +89,19 @@ void robot::follow_line_straight(int expected_distance, bool recover)
 	    this->go(127);
 	    break;
 	case 0b110:
-	    this->turn(1, FOLLOWER_KP - FOLLOWER_KI * integral_reading);
+	    this->turn(1, FOLLOWER_KP - FOLLOWER_KI * integral_reading, false);
 	    integral_reading -= 1;
 	    break;
 	case 0b011:
-	    this->turn(0, FOLLOWER_KP + FOLLOWER_KI * integral_reading);
+	    this->turn(0, FOLLOWER_KP + FOLLOWER_KI * integral_reading, false);
 	    integral_reading += 1;
 	    break;
 	case 0b100:
-	    this->turn(1, FOLLOWER_KP2 - FOLLOWER_KI * integral_reading);
+	    this->turn(1, FOLLOWER_KP2 - FOLLOWER_KI * integral_reading, false);
 	    integral_reading -= 2;
 	    break;
 	case 0b001:
-	    this->turn(0, FOLLOWER_KP2 + FOLLOWER_KI * integral_reading);
+	    this->turn(0, FOLLOWER_KP2 + FOLLOWER_KI * integral_reading, false);
 	    integral_reading += 2;
 	    break;
 	case 0b111:
@@ -144,7 +144,45 @@ void robot::follow_line_straight(int expected_distance, bool recover)
 
 void robot::line_follow_reverse(int distance)
 {
-    
+    unsigned char sensor_reading;
+    stopwatch sw;
+    int integral_reading = 0;
+
+    this->go(255);
+    sw.start();
+    while(sw.read() < distance * DISTANCE_CALIBRATION)
+    {
+	sensor_reading = this->read_line_sensors();
+	switch(sensor_reading)
+	{
+	case 0b010:
+	    this->go(255);
+	    break;
+	case 0b110:
+	    this->turn(1, FOLLOWER_KP - FOLLOWER_KI * integral_reading, true);
+	    integral_reading -= 1;
+	    break;
+	case 0b011:
+	    this->turn(0, FOLLOWER_KP + FOLLOWER_KI * integral_reading, true);
+	    integral_reading += 1;
+	    break;
+	case 0b100:
+	    this->turn(1, FOLLOWER_KP2 - FOLLOWER_KI * integral_reading, true);
+	    integral_reading -= 2;
+	    break;
+	case 0b001:
+	    this->turn(0, FOLLOWER_KP2 + FOLLOWER_KI * integral_reading, true);
+	    integral_reading += 2;
+	    break;
+	case 0b111:
+	    this->go(255);
+	    break;
+	default:
+	    //this->go(255);
+	    // lost_line_count++;
+	    break;
+	}
+    }
 }
 
 std::string robot::recover_line(std::string old_loc, unsigned char latest_reading)
@@ -170,23 +208,40 @@ void robot::traverse_curve()
     current_loc = "somthing"; //TODO Use correct location name
 }
 
+void robot::return_to_curve()
+{
+    //This function will move the robot forward, turn 90 degrees, then go until it sees the line.
+    //Presumably the line it sees should be the curve
+    this->go_time(2*DISTANCE_TO_CENTER, 127); //Move forward about 100mm, this can be changed.
+    this->turn_angle(90);
+    this->go_to_line(5000);
+    this->follow_line_straight(1000, 1);
+}
+
 void robot::go(unsigned char speed)
 {
     rlink.command(BOTH_MOTORS_GO_OPPOSITE, speed);
 }
 
 //TODO: Improve this function immensely as it assumes thing is going full speed and is rather stupid
-void robot::turn(bool right, unsigned char speed)
+void robot::turn(bool right, unsigned char speed, bool reverse)
 {
-    unsigned char adjusted_speed = speed > 127 ? 127 : speed; //Sets a limit to speed of turn
-    this->go(127);
+    unsigned char adjusted_speed;
+    adjusted_speed = speed > 127 ? 127 : speed; //Sets a limit to speed of turn
+    this->go(reverse ? 255 : 127); //Ensure that it adjusts to the correct direction
     if(right)
     {
-	rlink.command(MOTOR_2_GO, 255 - adjusted_speed);
+	if(!reverse)
+	    rlink.command(MOTOR_2_GO, 255 - adjusted_speed);
+	else
+	    rlink.command(MOTOR_1_GO, 255 - adjusted_speed);
     }
     else
     {
-	rlink.command(MOTOR_1_GO, 127 - adjusted_speed);
+	if(!reverse)
+	    rlink.command(MOTOR_1_GO, 127 - adjusted_speed);
+	else
+	    rlink.command(MOTOR_2_GO, 127 - adjusted_speed);
     }
 }
 

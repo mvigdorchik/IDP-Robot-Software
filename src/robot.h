@@ -154,6 +154,14 @@ public:
     void traverse_curve();
 
     /**
+     * Will turn into the curved line, and then continue to the next junction as normal.
+     * This is assumed to be run from JD1 facing east
+
+     * @pre Robot is facing East at JD1
+     */
+    void return_from_curve();
+
+    /**
      * Uses a slightly backwards line follow algorithm to be able to reverse.
      * This may not be needed but it can help with leaving space to allow collection point to be refilled.
 
@@ -170,7 +178,7 @@ public:
      * @param right Determines direction of the turn.
      * @param speed Determines amount to slow down other motor.
      */
-    void turn(bool right, unsigned char speed);
+    void turn(bool right, unsigned char speed, bool reverse);
 
     /**
      * Attempts to recover the line if it was lost. It will first try turning

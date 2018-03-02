@@ -57,18 +57,20 @@ int main()
 	junctions["H5"] = point(300, 0); //TODO Verify measurements for points where coordinates are 0
 */
 	rlink.command(RAMP_TIME, ROBOT_RAMP_TIME);
-	
-	//r.go_time(30000,127);
-	//r.turn(180);
-	turntable t;
+	// turntable t;
 
-	int path[2] = {3,0};
-	for(int i = 0; i < 3; i++)
-	{
-	    r.traverse_curve();
-	    r.take_path(path, 2);
-	    r.turn_to_line(0, true, true);
-	}
+	// r.go_time(1000,127);
+	// r.turn_angle(180);
+
+	// int path[2] = {3,0};
+	// for(int i = 0; i < 3; i++)
+	// {
+	//     r.traverse_curve();
+	//     r.take_path(path, 2);
+	//     r.turn_to_line(0, true, true);
+	// }
+	
+	r.line_follow_reverse(10000);
 	return 0;
 }
 
@@ -187,8 +189,3 @@ int main()
  *        -# Rotate the turntable so that the nest to be delivered is in correct position
  *        -# Action the actuator to push the nest into delivery zone
  */
-<<<<<<< a708f7667d0fc9347d53b8c1f871cba65c9b8d10
-=======
-
-
->>>>>>> Add curve following
