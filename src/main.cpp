@@ -10,6 +10,8 @@
 #define ROBOT_NUM 2
 #define DEBUG 1 //If defined all of the print code will run, otherwise it won't
 
+void demo_line_following();
+
 robot_link rlink;
 robot r;
 /**
@@ -72,6 +74,12 @@ int main()
 	
 	r.line_follow_reverse(10000);
 	return 0;
+}
+
+void demo_follow_line()
+{
+    int path[10] = {2,2,2,2,0,0,2,0,2,0};
+    r.take_path(path,10);
 }
 
 /** \mainpage Passover Elf Software Documentation
