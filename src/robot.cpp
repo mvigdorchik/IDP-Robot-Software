@@ -56,8 +56,12 @@ void robot::turn_angle(int degrees)
 
 unsigned char robot::read_line_sensors()
 {
+    //In the 0th bus expanser, bit 7 and bit 6 and bit 4 are outputs
     unsigned char result = 0;
-    rlink.command(WRITE_PORT_0, 255);
+    //TODO If we are confident that nothing funny happens, can remove this bitmapping stuff and just read, trusting that the inputs are set to 1
+    unsigned char current_state = rlink.request(READ_PORT_0);
+    current_state |= 0b00101111; //Ensures that the output pins don't change their state
+    rlink.command(WRITE_PORT_0, current_state);
     result = rlink.request(READ_PORT_0);
     result &= 0b00000111; //Ignore any other sensor on that bus.
     return result;

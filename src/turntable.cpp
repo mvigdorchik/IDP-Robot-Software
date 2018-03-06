@@ -10,7 +10,9 @@ turntable::turntable():current_nest(1)
 unsigned char turntable::read_sensor()
 {
 	unsigned char result = 0;
-	rlink.command(WRITE_PORT_0, 255);
+	unsigned char current_state = rlink.request(READ_PORT_0);
+	current_state |= 0b00101111; //Ensures that the output pins don't change their state
+	rlink.command(WRITE_PORT_0, current_state);
 	result = rlink.request(READ_PORT_0);
 	result &= 0b0001000; //Ignore any other sensor on that bus. 
 	result >>= 3;
