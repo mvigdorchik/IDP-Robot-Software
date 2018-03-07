@@ -6,11 +6,12 @@
 #include <stopwatch.h>
 #include "robot.h"
 #include "turntable.h"
+#include "arm.h"
 
 #define ROBOT_NUM 2
 #define DEBUG 1 //If defined all of the print code will run, otherwise it won't
 
-void demo_line_following();
+void demo_follow_line();
 
 robot_link rlink;
 robot r;
@@ -60,26 +61,38 @@ int main()
 */
 	rlink.command(RAMP_TIME, ROBOT_RAMP_TIME);
 	// turntable t;
+	arm a;
 
 	// r.go_time(1000,127);
 	// r.turn_angle(180);
 
-	// int path[2] = {3,0};
+	// int path[5] = {2,2,0,0,0};
 	// for(int i = 0; i < 3; i++)
 	// {
-	//     r.traverse_curve();
-	//     r.take_path(path, 2);
+	//     // r.traverse_curve();
+	//     r.take_path(path, 5);
 	//     r.turn_to_line(0, true, true);
 	// }
 	
-	r.line_follow_reverse(10000);
+	// r.line_follow_reverse(10000);
+	// r.follow_line_straight(100000, true);
+	demo_follow_line();
+
+	// a.move_arm(1);
+	// delay(2000);
+	// a.move_arm(0);
+
+
 	return 0;
 }
 
 void demo_follow_line()
 {
-    int path[10] = {2,2,2,2,0,0,2,0,2,0};
-    r.take_path(path,10);
+    int path[7] = {2,2,2,0,0,2,0};
+    r.take_path(path,7);
+    r.go_time(60, 127);
+    r.turn_angle(250);
+    r.go_time(55, 255);
 }
 
 /** \mainpage Passover Elf Software Documentation

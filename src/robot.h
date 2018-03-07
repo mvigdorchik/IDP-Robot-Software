@@ -12,10 +12,10 @@
 #include "line.h"
 
 #define ROBOT_RAMP_TIME 255 //Value from 0-254 (255 is default value) to increase time to ramp up
-#define ROTATION_CALIBRATION 14 //Converts angles into motor times by multiplying, assuming max speed
+#define ROTATION_CALIBRATION 16 //Converts angles into motor times by multiplying, assuming max speed
 #define DISTANCE_CALIBRATION 20.0 //Converts distances into motor times, assuming speed is set to 127
 #define INERTIA_CALIBRATION 20 //Number of mm that robot travels after stopping from full speed
-#define DISTANCE_TO_CENTER 60 //Distance in mm to center of rotation from the line sensors
+#define DISTANCE_TO_CENTER 40 //Distance in mm to center of rotation from the line sensors
 #define FOLLOWER_KP 40 //determines how much line follower needs to react when one sensor off line
 #define FOLLOWER_KP2 72 //Determines how much gain when 2 sensors are off the line
 #define FOLLOWER_KI 0.2 //Integral control for the line follower
@@ -43,6 +43,15 @@ enum State
     DEPOSIT_EGGS,
     FAILED_SENSORS,
     LOST_LINE
+};
+
+enum Direction
+{
+    WEST = 0,
+    EAST = 1,
+    NORTH = 2,
+    SOUTH = 3,
+    LOST = -1
 };
 
 /**
@@ -159,7 +168,7 @@ public:
 
      * @pre Robot is facing East at JD1
      */
-    void return_from_curve();
+    void return_to_curve();
 
     /**
      * Uses a slightly backwards line follow algorithm to be able to reverse.
@@ -192,6 +201,14 @@ public:
      * @see go_to_line()
      */
     std::string recover_line(std::string old_loc, unsigned char latest_reading);
+
+    /**
+     * Reads the beacon at the very start of the competition to determine the nest
+     * Composition
+
+     * @return An integer value corresponding to the beacon code.
+     */
+    int read_beacon();
     
     /**
      * Current state of the robot for the purpose of overall strategy.
@@ -207,7 +224,7 @@ public:
      * Stores the current orientation of the vehicle as an unsigned integer.
      * 0 corresponds to west, 1 to east, 2 to north, and 3 to south.
      */
-    unsigned char orientation;
+    Direction orientation;
 };
 
 

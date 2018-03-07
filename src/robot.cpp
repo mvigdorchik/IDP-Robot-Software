@@ -1,10 +1,11 @@
 #include "robot.h"
+#define DEBUG 1
  
 robot::robot()
 {
     state = DEFAULT;
     current_loc = "Start";
-    orientation = 2;
+    orientation = NORTH;
 }
 
 void robot::take_path(int path[], int size)
@@ -27,6 +28,7 @@ void robot::take_path(int path[], int size)
 	default:
 	    return; //should never happen unless function is used incorrectly
 	}
+	std::cout << orientation << std::endl;
 	this->follow_line_straight(10000, true);
     }
 }
@@ -132,11 +134,11 @@ void robot::follow_line_straight(int expected_distance, bool recover)
 	    }
 	    if(!(this->recover_line(current_loc, latest_nonzero_reading) == current_loc))
 	    {
-		std::cout << "IM TOTALLY LOST" << std::endl;
+		if(DEBUG) std::cout << "IM TOTALLY LOST" << std::endl;
 		this->follow_line_straight(100000, true);
 		break;
 	    }
-	    std::cout << "Im exactly where I was before" << std::endl;
+	    if(DEBUG) std::cout << "Im exactly where I was before" << std::endl;
 	    this->follow_line_straight(100000, true);
 
 	    return;
@@ -198,7 +200,8 @@ std::string robot::recover_line(std::string old_loc, unsigned char latest_readin
 
     //Begin actually determining where it is
     this->go_to_line(10000);
-    return "";
+    orientation = LOST;
+    return "LOST";
 }
 
 void robot::traverse_curve()
@@ -208,8 +211,9 @@ void robot::traverse_curve()
     this->go_to_line(100000);
     this->turn_to_line(1, true, false);
     this->follow_line_straight(10000, true);
-
-    current_loc = "somthing"; //TODO Use correct location name
+    
+    orientation = NORTH;
+    current_loc = "D2"; //TODO Use correct location name
 }
 
 void robot::return_to_curve()
@@ -220,6 +224,9 @@ void robot::return_to_curve()
     this->turn_angle(90);
     this->go_to_line(5000);
     this->follow_line_straight(1000, 1);
+
+    orientation = SOUTH;
+    current_loc = "C2";
 }
 
 void robot::go(unsigned char speed)
@@ -267,6 +274,10 @@ bool robot::turn_to_line(bool right, bool move_forward, bool delay_sensing)
     this->go(127); //Syncs up motors so they move together
     this->go(0);
     sw.stop();
+
+    if(orientation != LOST)
+	orientation = static_cast<Direction>(right ? (orientation + 1) % 4 : (orientation +3) % 4);
+ 
     return true;
 }
 
@@ -279,10 +290,59 @@ void robot::go_to_line(int timeout)
     {
 	if(sw.read() > timeout)
 	{
+	    orientation = LOST;
 	    this->turn_angle(70); //70 is kind of arbitrary
 	    this->go_to_line(2*timeout);
 	    return;
 	}
     }
     this->go(0);
+}
+
+int robot::read_beacon()
+{
+    rlink.command(WRITE_PORT_1,0b00000100);
+    bool last_state = false;
+    bool current_state = false;
+    int transition_count = 0;
+    int transition_count2 = 0; //Used to verify the first reading
+    stopwatch sw;
+
+    sw.start();
+    while(sw.read() < 1500)
+    {
+	delay(10);
+	current_state = (bool)(rlink.request(READ_PORT_1) & 0b000000100);
+	if(last_state && !current_state)
+	{
+	    if(transition_count == 0)
+		sw.start();
+	    transition_count  += 1;
+	}
+	last_state=current_state;
+
+    }
+    
+    // sw.start();
+    // last_state = false;
+    // current_state = false;
+    // while(sw.read() < 2000)
+    // {
+    // 	delay(10);
+    // 	current_state = (bool)(rlink.request(READ_PORT_1) & 0b000000100);
+    // 	if(last_state && !current_state)
+    // 	{
+	    // if(transition_count2 == 0)
+	    // 	sw.start();
+    // 	    transition_count2 += 1;
+    // 	}
+    // 	last_state=current_state;
+
+    // }
+
+    sw.stop();
+    if(transition_count != 0 /* && transition_count == transition_count2 */)
+	return transition_count;
+    else
+	return this->read_beacon();
 }
