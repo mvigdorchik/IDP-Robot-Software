@@ -15,6 +15,11 @@
 #define TURNTABLE_ROTATION_CALIBRATION 1.88976377953 //Converts angular speed from degrees/s into motor speed
 #define TURNTABLE_ROTATION_SPEED 0.01 //Converts from degrees to time
 #define TURNTABLE_INERTIA_CALIBRATION 10 //Number of degrees it makes more after stopping from full speed
+#define TURNTABLE_Ki 0.5 //Integral parameter for PID controller
+#define TURNTABLE_Kp 0.1 //Proportional parameter for PID controller
+#define TURNTABLE_Kd 0.01 //Derivative parameter for PID controller
+#define TURNTABLE_dt 0.1 //Timestep for PID controller
+#define TURNTABLE_tol 0.5 //Tolerance for ending turning
 #define TURNTABLE_SLOW_SPEED 40 // Speed set to reverse slowly for initial alignment
 #define TURNTABLE_FIRST_DECREASED_SPEED 80 // Value of first speed reduced, i.e. at one line before target
 #define TURNTABLE_SECOND_DECREASED_SPEED 40 // Value of second speed reduced, i.e. at one white space before target
@@ -85,7 +90,7 @@ public:
 	* @param clockwise Determines direction to turn.
 	* @param degrees Number of degrees to turn.
 	*/
-//	void turn_angle_pid(bool clockwise, int degrees);
+	void turn_angle_pid(bool clockwise, int degrees);
 
 	/**
 	* Turns the turntable for a given number of degrees based on time and a calibration constant.
@@ -112,6 +117,12 @@ public:
 	*/
 	unsigned char read_sensor();
 
+	/**
+	* Reads the value of the pot resistance and converts it in angle position of the turntable.
+
+	* @return An int between 0 and 360.
+	*/
+	int read_pot();
 
 	/**
 	* Determines the type of egg currently in the bucket.

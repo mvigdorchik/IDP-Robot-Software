@@ -21,6 +21,13 @@ unsigned char turntable::read_sensor()
 	else return result;
 }
 
+int turntable::read_pot()
+{
+	int result = 0;
+	unsigned char current_state = rlink.request(READ_PORT_0); //TODO Modify when electronics team attach the pot
+	return result;
+}
+
 
 void turntable::turn(bool clockwise, int speed)
 {
@@ -157,7 +164,6 @@ void turntable::turn_to_nest_thin(int next_nest)
 	current_nest = next_nest;
 }
 
-/*
 void turntable::turn_angle_pid(bool clockwise, int degrees)
 {
 	double min = -127.0 / TURNTABLE_ROTATION_CALIBRATION;
@@ -174,7 +180,7 @@ void turntable::turn_angle_pid(bool clockwise, int degrees)
 		else
 			this->turn(!clockwise, -inc / TURNTABLE_dt * TURNTABLE_ROTATION_CALIBRATION);
 	}
-} */
+}
 
 void turntable::turn_angle_time(bool clockwise, int degrees)
 {
