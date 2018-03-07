@@ -18,7 +18,7 @@
 #define TURNTABLE_Ki 0.5 //Integral parameter for PID controller
 #define TURNTABLE_Kp 0.1 //Proportional parameter for PID controller
 #define TURNTABLE_Kd 0.01 //Derivative parameter for PID controller
-#define TURNTABLE_dt 0.1 //Timestep for PID controller
+#define TURNTABLE_dt 3 //Timestep for PID controller
 #define TURNTABLE_tol 0.5 //Tolerance for ending turning
 #define TURNTABLE_SLOW_SPEED 40 // Speed set to reverse slowly for initial alignment
 #define TURNTABLE_FIRST_DECREASED_SPEED 80 // Value of first speed reduced, i.e. at one line before target

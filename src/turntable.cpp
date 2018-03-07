@@ -174,7 +174,7 @@ void turntable::turn_angle_pid(bool clockwise, int degrees)
 	double inc = 0;
 	while (std::abs((float)(val - degrees)) < TURNTABLE_tol && inc < TURNTABLE_tol) {
 		inc = pid.calculate(degrees, val);
-		val += inc; //TODO or not: replace <<val += inc>> with actual reading from sensor
+		val = read_pot(); //TODO or not: replace <<val += inc>> with actual reading from sensor
 		if (inc>0)
 			this->turn(clockwise, inc / TURNTABLE_dt * TURNTABLE_ROTATION_CALIBRATION);
 		else
