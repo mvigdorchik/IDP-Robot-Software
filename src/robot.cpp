@@ -33,12 +33,13 @@ void robot::take_path(int path[], int size)
     }
 }
 
-void robot::go_time(int distance, unsigned char speed)
+void robot::go_time(int distance, unsigned char speed, bool use_inertia)
 {
     stopwatch sw;
+    int inertia = use_inertia ? INERTIA_CALIBRATION : 0;
     this->go(speed);
     sw.start();
-    while(sw.read() < ((distance-INERTIA_CALIBRATION) * DISTANCE_CALIBRATION)); //TODO: Adjust the calibration for speed differences!!!
+    while(sw.read() < ((distance-inertia) * DISTANCE_CALIBRATION)); //TODO: Adjust the calibration for speed differences!!!
     this->go(0);
     delay(800); //Allow Inertia to stop things
     sw.stop();
@@ -225,7 +226,7 @@ void robot::return_to_curve()
 {
     //This function will move the robot forward, turn 90 degrees, then go until it sees the line.
     //Presumably the line it sees should be the curve
-    this->go_time(2*DISTANCE_TO_CENTER, 127); //Move forward about 100mm, this can be changed.
+    this->go_time(2*DISTANCE_TO_CENTER, 127, true); //Move forward about 100mm, this can be changed.
     this->turn_angle(90);
     this->go_to_line(5000);
     this->follow_line_straight(1000, 1);
@@ -234,9 +235,16 @@ void robot::return_to_curve()
     current_loc = "C2";
 }
 
+// void robot::go(unsigned char speed)
+// {
+//     rlink.command(BOTH_MOTORS_GO_OPPOSITE, speed);
+// }
 void robot::go(unsigned char speed)
 {
-    rlink.command(BOTH_MOTORS_GO_OPPOSITE, speed);
+    //This alternate version of go will adjust one motor slightly to make up for wheel imbalance
+    unsigned char reverse_speed = speed > 127 ? speed - 128 : speed + 128;  
+    rlink.command(MOTOR_1_GO, speed);
+    rlink.command(MOTOR_2_GO, reverse_speed - speed/100);
 }
 
 //TODO: Improve this function immensely as it assumes thing is going full speed and is rather stupid
@@ -265,7 +273,7 @@ bool robot::turn_to_line(bool right, bool move_forward, bool delay_sensing)
 {
     stopwatch sw;
     
-    if(move_forward) this->go_time(DISTANCE_TO_CENTER, 127); //move forward before turning if requested
+    if(move_forward) this->go_time(DISTANCE_TO_CENTER, 127, true); //move forward before turning if requested
     unsigned char sensor_reading = 0;
     if(delay_sensing) this->turn_angle(right ? 45: 315); //Turns a bit initially so it doesnt intersect the line its already on
     rlink.command(BOTH_MOTORS_GO_SAME, right ? 255 : 127);

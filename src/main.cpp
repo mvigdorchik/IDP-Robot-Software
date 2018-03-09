@@ -11,9 +11,10 @@
 #define ROBOT_NUM 2
 #define DEBUG 1 //If defined all of the print code will run, otherwise it won't
 
+void start_to_pallette();
 void demo_follow_line();
 void temp_turn_table(int nests);
-void push_nest(bool position);
+void push_egg(bool position);
 
 robot_link rlink;
 robot r;
@@ -73,15 +74,6 @@ int main()
 	// r.go_time(1000,127);
 	// r.turn_angle(180);
 
-	
-	int path[2] = {2,0};
-	r.take_path(path, 2);
-	r.turn_to_line(0, true, true);
-	r.follow_line_straight(75, false);
-	r.go_time(200, 255);
-	temp_turn_table(2);
-	a.move_arm(1);
-
 	// r.follow_line_straight(100000, true);
 	// demo_follow_line();
 
@@ -92,13 +84,21 @@ int main()
 	return 0;
 }
 
+void start_to_pallette()
+{
+    int path[4] = {2, 2, 1, 2};
+    r.take_path(path, 4);
+    r.turn_to_line(0, false,true);
+    r.follow_line_straight(60, false);
+    r.go_time(150, 255, false);
+}
 void demo_follow_line()
 {
     int path[9] = {2,2,2,2,0,0,2,0,2};
     r.take_path(path,9);
-    r.go_time(61, 127);
+    r.go_time(61, 127, true);
     r.turn_angle(260);
-    r.go_time(50, 255);
+    r.go_time(50, 255, true);
 }
 
 void temp_turn_table(int nests)
@@ -111,7 +111,7 @@ void temp_turn_table(int nests)
     rlink.command(MOTOR_4_GO, 0);
 }
 
-void push_nest(bool position)
+void push_egg(bool position)
 {
     unsigned char current_reading = rlink.request(READ_PORT_1);
     if(position)

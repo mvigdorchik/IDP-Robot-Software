@@ -124,8 +124,9 @@ public:
 
      * @param distance Distance in mm to move forward
      * @param speed Speed from 0-127 to go forward and 128-255 to reverse.
+     * @param use_inertia Determines if the function should consider inerta or ignore it
      */
-    void go_time(int distance, unsigned char speed);
+    void go_time(int distance, unsigned char speed, bool use_inertia);
 
     /**
      * Returns the value of the three line sensors as the 3 least significant bits.

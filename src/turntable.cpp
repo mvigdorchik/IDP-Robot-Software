@@ -191,3 +191,14 @@ void turntable::turn_angle_time(bool clockwise, int degrees)
 	this->turn(clockwise, 0);
 	sw.stop();
 }
+
+void turntable::push_nest()
+{
+    //Retracts the arm (should be unneeded) then pushes the nest and retracts the arm after
+    unsigned char current_reading = rlink.request(READ_PORT_1);
+    rlink.command(WRITE_PORT_1, current_reading & (~0b00000010));
+    delay(100);
+    rlink.command(WRITE_PORT_1, current_reading | 0b00000010);
+    delay(200);
+    rlink.command(WRITE_PORT_1, current_reading & (~0b00000010));
+}
