@@ -14,8 +14,8 @@
 #define ROBOT_RAMP_TIME 255 //Value from 0-254 (255 is default value) to increase time to ramp up
 #define ROTATION_CALIBRATION 16 //Converts angles into motor times by multiplying, assuming max speed
 #define DISTANCE_CALIBRATION 20.0 //Converts distances into motor times, assuming speed is set to 127
-#define INERTIA_CALIBRATION 20 //Number of mm that robot travels after stopping from full speed
-#define DISTANCE_TO_CENTER 40 //Distance in mm to center of rotation from the line sensors
+#define INERTIA_CALIBRATION 1 //Number of mm that robot travels after stopping from full speed
+#define DISTANCE_TO_CENTER 50 //Distance in mm to center of rotation from the line sensors
 #define FOLLOWER_KP 40 //determines how much line follower needs to react when one sensor off line
 #define FOLLOWER_KP2 72 //Determines how much gain when 2 sensors are off the line
 #define FOLLOWER_KI 0.2 //Integral control for the line follower

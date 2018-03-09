@@ -29,7 +29,7 @@ void robot::take_path(int path[], int size)
 	    return; //should never happen unless function is used incorrectly
 	}
 	std::cout << orientation << std::endl;
-	this->follow_line_straight(10000, true);
+	this->follow_line_straight(15000, true);
     }
 }
 
@@ -117,7 +117,7 @@ void robot::follow_line_straight(int expected_distance, bool recover)
 	    lost_line_count++;
 	    break;
 	}
-	if(sensor_reading == 0b111 && old_sensor_reading == 0b111 && junction_timeout.read() > 800)
+	if(sensor_reading == 0b111 && old_sensor_reading == 0b111 && junction_timeout.read() > 500)
 	{
 	    //junction timeout prevents it from stopping if it hits a line at steep angle to start out
 	    this->go(0);
@@ -141,6 +141,11 @@ void robot::follow_line_straight(int expected_distance, bool recover)
 	    if(DEBUG) std::cout << "Im exactly where I was before" << std::endl;
 	    this->follow_line_straight(100000, true);
 
+	    return;
+	}
+	if(junction_timeout.read() > (expected_distance * DISTANCE_CALIBRATION))
+	{
+	    //This is useful for following the line a short distance
 	    return;
 	}
     }

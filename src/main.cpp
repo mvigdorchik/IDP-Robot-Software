@@ -12,6 +12,8 @@
 #define DEBUG 1 //If defined all of the print code will run, otherwise it won't
 
 void demo_follow_line();
+void temp_turn_table(int nests);
+void push_nest(bool position);
 
 robot_link rlink;
 robot r;
@@ -62,39 +64,67 @@ int main()
 	rlink.command(RAMP_TIME, ROBOT_RAMP_TIME);
 	// turntable t;
 	arm a;
-
+	// temp_turn_table(1);
+	// delay(1000);
+	// temp_turn_table(5);
+	// delay(1000);
+	// temp_turn_table(3);
+	
 	// r.go_time(1000,127);
 	// r.turn_angle(180);
 
-	// int path[5] = {2,2,0,0,0};
-	// for(int i = 0; i < 3; i++)
-	// {
-	//     // r.traverse_curve();
-	//     r.take_path(path, 5);
-	//     r.turn_to_line(0, true, true);
-	// }
 	
-	// r.line_follow_reverse(10000);
+	int path[2] = {2,0};
+	r.take_path(path, 2);
+	r.turn_to_line(0, true, true);
+	r.follow_line_straight(75, false);
+	r.go_time(200, 255);
+	temp_turn_table(2);
+	a.move_arm(1);
+
 	// r.follow_line_straight(100000, true);
-	demo_follow_line();
+	// demo_follow_line();
 
 	// a.move_arm(1);
 	// delay(2000);
 	// a.move_arm(0);
-
 
 	return 0;
 }
 
 void demo_follow_line()
 {
-    int path[7] = {2,2,2,0,0,2,0};
-    r.take_path(path,7);
-    r.go_time(60, 127);
-    r.turn_angle(250);
-    r.go_time(55, 255);
+    int path[9] = {2,2,2,2,0,0,2,0,2};
+    r.take_path(path,9);
+    r.go_time(61, 127);
+    r.turn_angle(260);
+    r.go_time(50, 255);
 }
 
+void temp_turn_table(int nests)
+{
+    stopwatch sw;
+    sw.start();
+    int ROT_CAL = 590;
+    rlink.command(MOTOR_4_GO, 64);
+    while(sw.read() < ROT_CAL * nests);
+    rlink.command(MOTOR_4_GO, 0);
+}
+
+void push_nest(bool position)
+{
+    unsigned char current_reading = rlink.request(READ_PORT_1);
+    if(position)
+    {
+	rlink.command(WRITE_PORT_1, current_reading | 0b00000010);
+    }
+    else
+    {
+	rlink.command(WRITE_PORT_1, current_reading & (~0b00000010));
+    }
+
+    current_reading = rlink.request(READ_PORT_1);
+}
 /** \mainpage Passover Elf Software Documentation
  * 
  * \section sectionid Overall Function
