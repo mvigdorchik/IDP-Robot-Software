@@ -12,14 +12,14 @@
 #include <stopwatch.h>
 
 #define TURNTABLE_RAMP_TIME 10 //Ramp time for the turntable motor
-#define TURNTABLE_ROTATION_CALIBRATION 1.88976377953 //Converts angular speed from degrees/s into motor speed
+#define TURNTABLE_ROTATION_CALIBRATION 1.85 //Converts angular speed from degrees/s into motor speed
 #define TURNTABLE_ROTATION_SPEED 0.01 //Converts from degrees to time
 #define TURNTABLE_INERTIA_CALIBRATION 10 //Number of degrees it makes more after stopping from full speed
-#define TURNTABLE_Ki 0.5 //Integral parameter for PID controller
-#define TURNTABLE_Kp 0.1 //Proportional parameter for PID controller
-#define TURNTABLE_Kd 0.01 //Derivative parameter for PID controller
-#define TURNTABLE_dt 3 //Timestep for PID controller
-#define TURNTABLE_tol 0.5 //Tolerance for ending turning
+#define TURNTABLE_Ki 20.0 //Integral parameter for PID controller
+#define TURNTABLE_Kp 115.0 //Proportional parameter for PID controller
+#define TURNTABLE_Kd 10.0 //Derivative parameter for PID controller
+#define TURNTABLE_dt 5 //Timestep for PID controller
+#define TURNTABLE_tol 3.0 //Tolerance for ending turning
 #define TURNTABLE_SLOW_SPEED 40 // Speed set to reverse slowly for initial alignment
 #define TURNTABLE_FIRST_DECREASED_SPEED 80 // Value of first speed reduced, i.e. at one line before target
 #define TURNTABLE_SECOND_DECREASED_SPEED 40 // Value of second speed reduced, i.e. at one white space before target
@@ -32,6 +32,7 @@
 #define TIME_TO_REVERSE 130 //Time to center on the nest for initial alignment
 #define TOTAL_NUMBER_NESTS 9 //Number of nests
 #define BLACK_HI 1 // If set to 1, sensors will give 1 when see black
+#define POT_START_OFFSET 15 // Value indicated by pot at the first nest
 
 extern robot_link rlink;
 
@@ -84,13 +85,20 @@ public:
 
 
     /**
+    * Turns the turntable from the current nest to to desired nest.
+
+    * @param next_nest Number of the desired nest to deposit into.
+    */
+    void turn_to_nest_pid(int next_nest);
+
+    /**
     * Turns the turntable a given angle using a PID controller and a continuous sensor reading.
     * This function currently will not work as there is no potentiostat on board, but may be useful in the future.
 
     * @param clockwise Determines direction to turn.
     * @param degrees Number of degrees to turn.
     */
-    void turn_angle_pid(bool clockwise, int degrees);
+    void turn_angle_pid(int target_angle);
 
     /**
     * Turns the turntable for a given number of degrees based on time and a calibration constant.

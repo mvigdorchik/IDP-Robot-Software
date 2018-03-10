@@ -23,8 +23,8 @@ unsigned char turntable::read_sensor()
 
 int turntable::read_pot()
 {
-	int result = 0;
-	unsigned char current_state = rlink.request(READ_PORT_0); //TODO Modify when electronics team attach the pot
+	unsigned char result = rlink.request(ADC0);  //Reads measurement from ADC0
+	result = (result - POT_START_OFFSET)*360/250;  // Scale measurement to degrees
 	return result;
 }
 
@@ -164,22 +164,28 @@ void turntable::turn_to_nest_thin(int next_nest)
 	current_nest = next_nest;
 }
 
-void turntable::turn_angle_pid(bool clockwise, int degrees)
+void turntable::turn_to_nest_pid(int next_nest)
 {
-	double min = -127.0 / TURNTABLE_ROTATION_CALIBRATION;
-	double max = 127.0 / TURNTABLE_ROTATION_CALIBRATION;
-	PID pid = PID(TURNTABLE_dt, max, min, TURNTABLE_Kp, TURNTABLE_Kd, TURNTABLE_Ki);
+	int target_angle = (next_nest-1) * 360 / TOTAL_NUMBER_NESTS;	
+	turn_angle_pid(target_angle);
+}
 
-	int val = 0;
+void turntable::turn_angle_pid(int target_angle)
+{
+	double min = -127.0 * TURNTABLE_ROTATION_CALIBRATION;
+	double max = 127.0 * TURNTABLE_ROTATION_CALIBRATION;
+	PID pid = PID(TURNTABLE_dt, max, min, TURNTABLE_Kp, TURNTABLE_Kd, TURNTABLE_Ki);
+	int val = this->read_pot();
 	double inc = 0;
-	while (std::abs((float)(val - degrees)) < TURNTABLE_tol && inc < TURNTABLE_tol) {
-		inc = pid.calculate(degrees, val);
-		val = read_pot(); //TODO or not: replace <<val += inc>> with actual reading from sensor
+	while (std::abs((float)(val - target_angle)) < TURNTABLE_tol && inc < TURNTABLE_tol) {
+		inc = pid.calculate(target_angle, val);
+		val = this->read_pot(); //TODO or not: replace <<val += inc>> with actual reading from sensor
 		if (inc>0)
-			this->turn(clockwise, inc / TURNTABLE_dt * TURNTABLE_ROTATION_CALIBRATION);
+			this->turn(true, (int) (inc / TURNTABLE_dt / TURNTABLE_ROTATION_CALIBRATION));
 		else
-			this->turn(!clockwise, -inc / TURNTABLE_dt * TURNTABLE_ROTATION_CALIBRATION);
+			this->turn(false, (int) (-inc / TURNTABLE_dt / TURNTABLE_ROTATION_CALIBRATION));
 	}
+	this->turn(true, 0);
 }
 
 void turntable::turn_angle_time(bool clockwise, int degrees)

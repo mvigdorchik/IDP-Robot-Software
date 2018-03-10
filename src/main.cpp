@@ -18,6 +18,7 @@ void push_egg(bool position);
 
 robot_link rlink;
 robot r;
+turntable t;
 /**
  * Datastructure to store the map of the field. Completely static.
  */
@@ -81,6 +82,8 @@ int main()
 	// delay(2000);
 	// a.move_arm(0);
 
+
+	// demo_turntable();
 	return 0;
 }
 
@@ -92,6 +95,19 @@ void start_to_pallette()
     r.follow_line_straight(60, false);
     r.go_time(150, 255, false);
 }
+
+void demo_turntable()
+{	
+    t.turn_to_nest_pid (2);
+    t.turn_to_nest_pid (4);
+    t.turn_to_nest_pid (6);
+    t.turn_to_nest_pid (9);
+    t.turn_to_nest_pid (7);
+    t.turn_to_nest_pid (1);
+    t.turn_to_nest_pid (3);
+    t.turn_to_nest_pid (8);
+}
+
 void demo_follow_line()
 {
     int path[9] = {2,2,2,2,0,0,2,0,2};
