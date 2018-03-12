@@ -18,7 +18,7 @@
 #define TURNTABLE_ROTATION_SPEED 0.01 //Converts from degrees to time
 #define TURNTABLE_INERTIA_CALIBRATION 10 //Number of degrees it makes more after stopping from full speed
 #define TURNTABLE_Ki 0.0 //Integral parameter for PID controller
-#define TURNTABLE_Kp 10.0 //Proportional parameter for PID controller
+#define TURNTABLE_Kp 12.0 //Proportional parameter for PID controller
 #define TURNTABLE_Kd 0.0 //Derivative parameter for PID controller
 #define TURNTABLE_dt 5 //Timestep for PID controller
 #define TURNTABLE_tol 1.0 //Tolerance for ending turning

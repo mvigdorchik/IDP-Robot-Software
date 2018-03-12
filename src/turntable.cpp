@@ -6,6 +6,102 @@ turntable::turntable():current_nest(1)
 {
 }
 
+int turntable::read_pot()
+{
+    int result = rlink.request(ADC0);  //Reads measurement from ADC0
+    result = (result - POT_START_OFFSET);
+    result = result > POT_MAX_VALUE ? POT_MAX_VALUE : result;
+    result = result < 1 ? 1 : result;
+
+    return result;
+}
+
+
+void turntable::turn_to_nest_pid(int nest)
+{
+    int target;
+    switch (nest) {
+        case 0 :
+	    target = 0;
+	case 1 :
+	    target = 25;
+	case 2 :
+	    target = 50;
+	case 3 :
+	    target = 75;
+	case 4 :
+	    target = 100;
+	case 5 :
+	    target = 125;
+	case 6 :
+	    target = 150;
+	case 7 :
+	    target = 175;
+	case 8 :
+	    target = 200;
+	default :
+	    target = 0;
+    }
+    turn_angle_pid(target);
+}
+
+void turntable::turn_to_push_pid(int nest)
+{
+    int target;
+    switch (nest) {
+        case 0 :
+	    target = 60;
+	case 1 :
+	    target = 85;
+	case 2 :
+	    target = 110;
+	case 3 :
+	    target = 135;
+	case 4 :
+	    target = 160;
+	case 5 :
+	    target = 185;
+	case 6 :
+	    target = 210;
+	case 7 :
+	    target = 15;
+	case 8 :
+	    target = 40;
+	default :
+	    target = 60;
+    }
+    turn_angle_pid(target);
+}
+
+void turntable::turn_angle_pid(int target)
+{
+    double min = -127.0;
+    double max = 127.0;
+    PID pid = PID(TURNTABLE_dt, max, min, TURNTABLE_Kp, TURNTABLE_Kd, TURNTABLE_Ki);
+    int val = this->read_pot();
+    double inc = POT_MAX_VALUE;
+    if(DEBUG) std::cout << "Target" << target << std::endl;
+    while (std::abs((float)(val - target)) > TURNTABLE_tol || std::abs((float)inc) > 5*TURNTABLE_tol) {
+	if(DEBUG) std::cout << "val is " << val << std::endl;
+	if(DEBUG) std::cout << "target is " << target << std::endl;
+	inc = pid.calculate(target, val);
+	if(DEBUG) std::cout << "inc is " << inc << std::endl;
+	val = this->read_pot();
+	if (inc>0)
+	    this->turn(true, (int) (inc));
+	else
+	    this->turn(false, (int) (-inc));
+    }
+    this->turn(true, 0);
+}
+
+void turntable::turn(bool clockwise, int speed)
+{
+    unsigned char adjusted_speed = speed > 127 ? 127 : speed; //Sets a limit to speed of turn
+    adjusted_speed = clockwise ? adjusted_speed : adjusted_speed + 128;
+    rlink.command(MOTOR_4_GO, adjusted_speed);
+}
+
 unsigned char turntable::read_sensor()
 {
     unsigned char result = 0;
@@ -18,24 +114,6 @@ unsigned char turntable::read_sensor()
     if (BLACK_HI)
 	return !result;
     else return result;
-}
-
-int turntable::read_pot()
-{
-    int result = rlink.request(ADC0);  //Reads measurement from ADC0
-    result = (result - POT_START_OFFSET)*360/POT_MAX_VALUE;  // Scale measurement to degrees
-    result = result > 360 ? 360 : result;
-    result = result < 1 ? 1 : result;
-
-    return result;
-}
-
-
-void turntable::turn(bool clockwise, int speed)
-{
-    unsigned char adjusted_speed = speed > 127 ? 127 : speed; //Sets a limit to speed of turn
-    adjusted_speed = clockwise ? adjusted_speed : adjusted_speed + 128;
-    rlink.command(MOTOR_4_GO, adjusted_speed);
 }
 
 void turntable::initial_align()
@@ -164,47 +242,6 @@ void turntable::turn_to_nest_thin(int next_nest)
     }
     sw.stop();
     current_nest = next_nest;
-}
-
-void turntable::turn_to_nest_pid(int next_nest)
-{
-    int target_angle = (next_nest-1) * 360 / TOTAL_NUMBER_NESTS;	
-    turn_angle_pid(target_angle);
-}
-
-void turntable::turn_to_push_pid(int next_nest)
-{
-    int target_angle = (next_nest-1) * 360 / TOTAL_NUMBER_NESTS + (float) (360.0/POT_MAX_VALUE * COLLECT_TO_PUSH_OFFSET);
-    target_angle = target_angle % 360; //Get rid of over rotation
-    // if(next_nest == 7)
-    // 	target_angle = 352;
-    // if(next_nest == 8)
-    // 	target_angle = 16;
-	
-    turn_angle_pid(target_angle);
-}
-
-void turntable::turn_angle_pid(int target_angle)
-{
-    double min = -127.0 * TURNTABLE_ROTATION_CALIBRATION; //-255
-    double max = 127.0 * TURNTABLE_ROTATION_CALIBRATION; //+255
-    PID pid = PID(TURNTABLE_dt, max, min, TURNTABLE_Kp, TURNTABLE_Kd, TURNTABLE_Ki);
-    int val = this->read_pot();
-    
-    double inc = 360;
-    if(DEBUG) std::cout << "Target angle " << target_angle << std::endl;
-    while (std::abs((float)(val - target_angle)) > TURNTABLE_tol && std::abs((float)inc) > 3*TURNTABLE_tol) {
-	if(DEBUG) std::cout << "val is " << val << std::endl;
-	if(DEBUG) std::cout << "target angle is " << target_angle << std::endl;
-	inc = pid.calculate(target_angle, val);
-	if(DEBUG) std::cout << "inc is " << inc << std::endl;
-	val = this->read_pot();
-	if (inc>0)
-	    this->turn(true, (int) (inc /  TURNTABLE_ROTATION_CALIBRATION));
-	else
-	    this->turn(false, (int) (-inc / TURNTABLE_ROTATION_CALIBRATION));
-    }
-    this->turn(true, 0);
 }
 
 void turntable::turn_angle_time(bool clockwise, int degrees)
