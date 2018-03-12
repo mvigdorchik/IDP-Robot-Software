@@ -15,9 +15,9 @@
 #define TURNTABLE_ROTATION_CALIBRATION 1.85 //Converts angular speed from degrees/s into motor speed
 #define TURNTABLE_ROTATION_SPEED 0.01 //Converts from degrees to time
 #define TURNTABLE_INERTIA_CALIBRATION 10 //Number of degrees it makes more after stopping from full speed
-#define TURNTABLE_Ki 20.0 //Integral parameter for PID controller
-#define TURNTABLE_Kp 115.0 //Proportional parameter for PID controller
-#define TURNTABLE_Kd 10.0 //Derivative parameter for PID controller
+#define TURNTABLE_Ki 0.0 //Integral parameter for PID controller
+#define TURNTABLE_Kp 10.0 //Proportional parameter for PID controller
+#define TURNTABLE_Kd 0.0 //Derivative parameter for PID controller
 #define TURNTABLE_dt 5 //Timestep for PID controller
 #define TURNTABLE_tol 3.0 //Tolerance for ending turning
 #define TURNTABLE_SLOW_SPEED 40 // Speed set to reverse slowly for initial alignment
@@ -32,7 +32,7 @@
 #define TIME_TO_REVERSE 130 //Time to center on the nest for initial alignment
 #define TOTAL_NUMBER_NESTS 9 //Number of nests
 #define BLACK_HI 1 // If set to 1, sensors will give 1 when see black
-#define POT_START_OFFSET 15 // Value indicated by pot at the first nest
+#define POT_START_OFFSET 5 // Value indicated by pot at the first nest
 
 extern robot_link rlink;
 

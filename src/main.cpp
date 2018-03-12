@@ -15,6 +15,7 @@ void start_to_pallette();
 void demo_follow_line();
 void temp_turn_table(int nests);
 void push_egg(bool position);
+void demo_turntable();
 
 robot_link rlink;
 robot r;
@@ -63,9 +64,15 @@ int main()
 	junctions["H4"] = point(300, 0);
 	junctions["H5"] = point(300, 0); //TODO Verify measurements for points where coordinates are 0
 */
+
 	rlink.command(RAMP_TIME, ROBOT_RAMP_TIME);
-	// turntable t;
-	arm a;
+	std::cout << "Initialise turntable" << std::endl;
+	turntable t;
+	//	while(1)
+	//    {
+	//	std::cout << "ADC0 " <<rlink.request(ADC0)<< std::endl;
+	//	}
+	// arm a;
 	// temp_turn_table(1);
 	// delay(1000);
 	// temp_turn_table(5);
@@ -83,7 +90,8 @@ int main()
 	// a.move_arm(0);
 
 
-	// demo_turntable();
+	demo_turntable();
+	std::cout << "Finish Demo" << std::endl;
 	return 0;
 }
 
@@ -99,12 +107,27 @@ void start_to_pallette()
 void demo_turntable()
 {	
     t.turn_to_nest_pid (2);
+    std::cout << "At nest 2" << std::endl;
+    //delay(5000);
     t.turn_to_nest_pid (4);
+    //delay(5000);
+
+    std::cout << "At nest 6" << std::endl;
     t.turn_to_nest_pid (6);
+    // delay(5000);
+
     t.turn_to_nest_pid (9);
+    //delay(5000);
+
     t.turn_to_nest_pid (7);
+    // delay(5000);
+
     t.turn_to_nest_pid (1);
+    //delay(5000);
+
     t.turn_to_nest_pid (3);
+    //delay(5000);
+
     t.turn_to_nest_pid (8);
 }
 

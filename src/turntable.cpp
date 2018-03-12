@@ -4,7 +4,7 @@
 //Default constructor
 turntable::turntable():current_nest(1)
 {
-	rlink.command(RAMP_TIME, TURNTABLE_RAMP_TIME);
+  //	rlink.command(RAMP_TIME, TURNTABLE_RAMP_TIME);
 }
 
 unsigned char turntable::read_sensor()
@@ -23,8 +23,11 @@ unsigned char turntable::read_sensor()
 
 int turntable::read_pot()
 {
-	unsigned char result = rlink.request(ADC0);  //Reads measurement from ADC0
+	int result = rlink.request(ADC0);  //Reads measurement from ADC0
 	result = (result - POT_START_OFFSET)*360/250;  // Scale measurement to degrees
+	result = result > 360 ? 360 : result;
+	result = result < 1 ? 1 : result;
+
 	return result;
 }
 
@@ -33,7 +36,7 @@ void turntable::turn(bool clockwise, int speed)
 {
 	unsigned char adjusted_speed = speed > 127 ? 127 : speed; //Sets a limit to speed of turn
 	adjusted_speed = clockwise ? adjusted_speed : adjusted_speed + 128;
-	rlink.command(MOTOR_3_GO, adjusted_speed);
+	rlink.command(MOTOR_4_GO, adjusted_speed);
 }
 
 void turntable::initial_align()
@@ -172,18 +175,23 @@ void turntable::turn_to_nest_pid(int next_nest)
 
 void turntable::turn_angle_pid(int target_angle)
 {
-	double min = -127.0 * TURNTABLE_ROTATION_CALIBRATION;
-	double max = 127.0 * TURNTABLE_ROTATION_CALIBRATION;
+  double min = -127.0 * TURNTABLE_ROTATION_CALIBRATION; //-255
+  double max = 127.0 * TURNTABLE_ROTATION_CALIBRATION; //+255
 	PID pid = PID(TURNTABLE_dt, max, min, TURNTABLE_Kp, TURNTABLE_Kd, TURNTABLE_Ki);
 	int val = this->read_pot();
-	double inc = 0;
-	while (std::abs((float)(val - target_angle)) < TURNTABLE_tol && inc < TURNTABLE_tol) {
+	
+	double inc = 360;
+	std::cout << "Target angle " << target_angle << std::endl;
+	while (std::abs((float)(val - target_angle)) > TURNTABLE_tol && std::abs((float)inc) > 5*TURNTABLE_tol) {
+	        std::cout << "val is " << val << std::endl;
+		std::cout << "target angle is " << val << std::endl;
 		inc = pid.calculate(target_angle, val);
-		val = this->read_pot(); //TODO or not: replace <<val += inc>> with actual reading from sensor
+		std::cout << "inc is " << inc << std::endl;
+		val = this->read_pot();
 		if (inc>0)
-			this->turn(true, (int) (inc / TURNTABLE_dt / TURNTABLE_ROTATION_CALIBRATION));
+			this->turn(true, (int) (inc /  TURNTABLE_ROTATION_CALIBRATION));
 		else
-			this->turn(false, (int) (-inc / TURNTABLE_dt / TURNTABLE_ROTATION_CALIBRATION));
+			this->turn(false, (int) (-inc / TURNTABLE_ROTATION_CALIBRATION));
 	}
 	this->turn(true, 0);
 }
