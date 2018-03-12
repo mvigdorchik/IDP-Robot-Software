@@ -9,7 +9,6 @@
 #include "arm.h"
 
 #define ROBOT_NUM 2
-#define DEBUG 1 //If defined all of the print code will run, otherwise it won't
 
 void start_to_pallette();
 void demo_follow_line();
@@ -66,18 +65,57 @@ int main()
 */
 
 	rlink.command(RAMP_TIME, ROBOT_RAMP_TIME);
-	std::cout << "Initialise turntable" << std::endl;
 	turntable t;
-	//	while(1)
-	//    {
-	//	std::cout << "ADC0 " <<rlink.request(ADC0)<< std::endl;
-	//	}
-	// arm a;
-	// temp_turn_table(1);
+	arm a;
+	push_egg(0);
+
+	// t.turn_to_nest_pid(1);
 	// delay(1000);
-	// temp_turn_table(5);
+	// t.turn_to_nest_pid(2);
 	// delay(1000);
-	// temp_turn_table(3);
+	// t.turn_to_nest_pid(3);
+	// delay(1000);
+	// t.turn_to_nest_pid(4);
+	// delay(1000);
+	// t.turn_to_nest_pid(5);
+	// delay(1000);
+	// t.turn_to_nest_pid(6);
+	// delay(1000);
+	// t.turn_to_nest_pid(7);
+	// delay(1000);
+	// t.turn_to_nest_pid(8);
+	// delay(1000);
+	// t.turn_to_nest_pid(9);
+	// delay(1000);
+
+	// t.turn_to_push_pid(1);
+	// delay(1000);
+	// t.turn_to_push_pid(2);
+	// delay(1000);
+	// t.turn_to_push_pid(3);
+	// delay(1000);
+	// t.turn_to_push_pid(4);
+	// delay(1000);
+	// t.turn_to_push_pid(5);
+	// delay(1000);
+	// t.turn_to_push_pid(6);
+	// delay(1000);
+	// t.turn_to_push_pid(7);
+	// delay(1000);
+	// t.turn_to_push_pid(8);
+	// delay(1000);
+	// t.turn_to_push_pid(9);
+	// delay(1000);
+	// while(true)
+	// {
+	//     std::cout << rlink.request(ADC0) << std::endl;
+	//     delay(50);
+	// }
+
+
+	// t.push_nest();
+	// delay(1000);
+	// t.push_nest();
 	
 	// r.go_time(1000,127);
 	// r.turn_angle(180);
@@ -89,12 +127,14 @@ int main()
 	// delay(2000);
 	// a.move_arm(0);
 
-
-	demo_turntable();
-	std::cout << "Finish Demo" << std::endl;
+	start_to_pallette();
+	// demo_turntable();
 	return 0;
 }
 
+/**
+ * Goes from the start position to the pallette, aligned correctly
+ */
 void start_to_pallette()
 {
     int path[4] = {2, 2, 1, 2};
@@ -155,15 +195,16 @@ void push_egg(bool position)
     unsigned char current_reading = rlink.request(READ_PORT_1);
     if(position)
     {
-	rlink.command(WRITE_PORT_1, current_reading | 0b00000010);
+	rlink.command(WRITE_PORT_1, current_reading | 0b00000001);
     }
     else
     {
-	rlink.command(WRITE_PORT_1, current_reading & (~0b00000010));
+	rlink.command(WRITE_PORT_1, current_reading & (~0b00000001));
     }
 
     current_reading = rlink.request(READ_PORT_1);
 }
+
 /** \mainpage Passover Elf Software Documentation
  * 
  * \section sectionid Overall Function

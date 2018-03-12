@@ -11,6 +11,8 @@
 #include <vector>
 #include <stopwatch.h>
 
+#define DEBUG 1 //If defined all of the print code will run, otherwise it won't
+
 #define TURNTABLE_RAMP_TIME 10 //Ramp time for the turntable motor
 #define TURNTABLE_ROTATION_CALIBRATION 1.85 //Converts angular speed from degrees/s into motor speed
 #define TURNTABLE_ROTATION_SPEED 0.01 //Converts from degrees to time
@@ -19,7 +21,7 @@
 #define TURNTABLE_Kp 10.0 //Proportional parameter for PID controller
 #define TURNTABLE_Kd 0.0 //Derivative parameter for PID controller
 #define TURNTABLE_dt 5 //Timestep for PID controller
-#define TURNTABLE_tol 3.0 //Tolerance for ending turning
+#define TURNTABLE_tol 1.0 //Tolerance for ending turning
 #define TURNTABLE_SLOW_SPEED 40 // Speed set to reverse slowly for initial alignment
 #define TURNTABLE_FIRST_DECREASED_SPEED 80 // Value of first speed reduced, i.e. at one line before target
 #define TURNTABLE_SECOND_DECREASED_SPEED 40 // Value of second speed reduced, i.e. at one white space before target
@@ -33,7 +35,8 @@
 #define TOTAL_NUMBER_NESTS 9 //Number of nests
 #define BLACK_HI 1 // If set to 1, sensors will give 1 when see black
 #define POT_START_OFFSET 5 // Value indicated by pot at the first nest
-
+#define POT_MAX_VALUE 237 // The limit of POT corresponding to 360 degrees
+#define COLLECT_TO_PUSH_OFFSET 66 //ADC reading difference between collecting and depositing nest
 extern robot_link rlink;
 
 /**
@@ -83,13 +86,20 @@ public:
     */
     void turn_to_nest_thin(int next_nest);
 
-
     /**
     * Turns the turntable from the current nest to to desired nest.
 
     * @param next_nest Number of the desired nest to deposit into.
     */
     void turn_to_nest_pid(int next_nest);
+
+    /**
+     * Same as turn_to_nest_pid but it aligns with the pusher instead
+
+     * @param next_nest Which nest to align with ejector
+     * @see turn_to_nest_pid()
+     */
+    void turn_to_push_pid(int next_nest);
 
     /**
     * Turns the turntable a given angle using a PID controller and a continuous sensor reading.
@@ -157,6 +167,9 @@ public:
     */
     void place_egg();
 
+    /**
+     * This function will push the nest currently under the ejector off the ramp then retract after
+     */
     void push_nest();
     
     /**
@@ -167,11 +180,10 @@ public:
     std::vector<Egg> nests[TOTAL_NUMBER_NESTS];
 
 private:
-
-	/**
-	* The nest the sorting bucket is currently over, corresponding to turntable rotation.
-	*/
-	int current_nest;
+    /**
+     * The nest the sorting bucket is currently over, corresponding to turntable rotation.
+     */
+    int current_nest;
 };
 
 #endif /* TURNTABLE_H */
