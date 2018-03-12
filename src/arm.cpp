@@ -10,10 +10,10 @@ void arm::move_arm(bool position)
     unsigned char current_reading = rlink.request(READ_PORT_1);
     if(position)
     {
-	rlink.command(WRITE_PORT_1, current_reading | 0b00000001);
+	rlink.command(WRITE_PORT_1, current_reading | 0b00000010);
     }
     else
     {
-	rlink.command(WRITE_PORT_1, current_reading & (~0b00000001));
+	rlink.command(WRITE_PORT_1, current_reading & (~0b00000010));
     }
 }

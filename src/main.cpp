@@ -123,12 +123,20 @@ int main()
 	// r.follow_line_straight(100000, true);
 	// demo_follow_line();
 
-	// a.move_arm(1);
-	// delay(2000);
-	// a.move_arm(0);
-
+	
+	a.move_arm(0);
+	push_egg(0);
 	start_to_pallette();
-	// demo_turntable();
+	r.follow_line_straight(200, true);
+	r.turn_to_line(1, false, true);
+	r.follow_line_straight(100000, true);
+	r.go_time(20, 127, false);
+	r.turn_to_line(0, false, true);
+	r.traverse_curve();
+	r.go_time(100, 127, false);
+	r.go_time(22, 255, false);
+	t.push_nest();
+
 	return 0;
 }
 
@@ -141,7 +149,7 @@ void start_to_pallette()
     r.take_path(path, 4);
     r.turn_to_line(0, false,true);
     r.follow_line_straight(60, false);
-    r.go_time(150, 255, false);
+    r.go_time(180, 255, false);
 }
 
 void demo_turntable()
