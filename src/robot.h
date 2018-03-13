@@ -17,8 +17,8 @@
 #define INERTIA_CALIBRATION 1 //Number of mm that robot travels after stopping from full speed
 #define DISTANCE_TO_CENTER 40 //Distance in mm to center of rotation from the line sensors
 #define FOLLOWER_KP 40 //determines how much line follower needs to react when one sensor off line
-#define FOLLOWER_KP2 72 //Determines how much gain when 2 sensors are off the line
-#define FOLLOWER_KI 0.2 //Integral control for the line follower
+#define FOLLOWER_KP2 80 //Determines how much gain when 2 sensors are off the line
+#define FOLLOWER_KI 0.3 //Integral control for the line follower
 
 /**
  * Object used to send commands and receive sensor readings from the robot.

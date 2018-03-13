@@ -77,7 +77,7 @@ void robot::follow_line_straight(int expected_distance, bool recover)
     unsigned char latest_nonzero_reading = 0; //Used to remember how it got lost
     int integral_reading = 0;
     int lost_line_count = 0; //Keeps track of how many cycles no line was detected
-    int MAX_LOST_LINE_COUNT = 100; //Number of times line can be lost before surrender
+    int MAX_LOST_LINE_COUNT = 140; //Number of times line can be lost before surrender, tested with 100
 
     this->go(127);
     junction_timeout.start();
@@ -213,7 +213,7 @@ std::string robot::recover_line(std::string old_loc, unsigned char latest_readin
 void robot::traverse_curve()
 {
     this->follow_line_straight(50000, false); //TODO Figure out length of curve
-    this->turn_angle(310);
+    this->turn_angle(315);
     this->go_to_line(100000);
     this->turn_to_line(1, true, false);
     this->follow_line_straight(10000, true);

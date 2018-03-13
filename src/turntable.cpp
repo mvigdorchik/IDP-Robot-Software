@@ -21,27 +21,37 @@ void turntable::turn_to_nest_pid(int nest)
 {
     int target;
     switch (nest) {
-        case 0 :
+        case 0:
 	    target = 0;
-	case 1 :
-	    target = 25;
-	case 2 :
-	    target = 50;
-	case 3 :
-	    target = 75;
-	case 4 :
-	    target = 100;
-	case 5 :
-	    target = 125;
-	case 6 :
-	    target = 150;
-	case 7 :
-	    target = 175;
-	case 8 :
-	    target = 200;
-	default :
+	    break;
+	case 1:
+	    target = 29;
+	    break;
+	case 2:
+	    target = 59;
+	    break;
+	case 3:
+	    target = 86;
+	    break;
+	case 4:
+	    target = 114;
+	    break;
+	case 5:
+	    target = 140;
+	    break;
+	case 6:
+	    target = 173;
+	    break;
+	case 7:
+	    target = 205;
+	    break;
+	case 8:
+	    target = 238;
+	    break;
+	default:
 	    target = 0;
     }
+    std::cout << "Target is :" << target << std::endl;
     turn_angle_pid(target);
 }
 
@@ -50,29 +60,39 @@ void turntable::turn_to_push_pid(int nest)
     int target;
     switch (nest) {
         case 0 :
-	    target = 60;
+	    target = 67;
+	    break;
 	case 1 :
-	    target = 85;
+	    target = 95;
+	    break;
 	case 2 :
-	    target = 110;
+	    target = 124;
+	    break;
 	case 3 :
-	    target = 135;
+	    target = 152;
+	    break;
 	case 4 :
-	    target = 160;
+	    target = 182;
+	    break;
 	case 5 :
-	    target = 185;
+	    target = 216;
+	    break;
 	case 6 :
-	    target = 210;
+	    target = 248;
+	    break;
 	case 7 :
-	    target = 15;
+	    target = 9;
+	    break;
 	case 8 :
-	    target = 40;
+	    target = 37;
+	    break;
 	default :
-	    target = 60;
+	    target = 67;
     }
     turn_angle_pid(target);
 }
 
+//TODO !!!!
 void turntable::turn_angle_pid(int target)
 {
     double min = -127.0;
@@ -80,8 +100,15 @@ void turntable::turn_angle_pid(int target)
     PID pid = PID(TURNTABLE_dt, max, min, TURNTABLE_Kp, TURNTABLE_Kd, TURNTABLE_Ki);
     int val = this->read_pot();
     double inc = POT_MAX_VALUE;
+    
+    int cycles_in_tol = 0;
+    int MAX_TIME = 4500;
+    stopwatch timeout;
     if(DEBUG) std::cout << "Target" << target << std::endl;
-    while (std::abs((float)(val - target)) > TURNTABLE_tol || std::abs((float)inc) > 20*TURNTABLE_tol) {
+    timeout.start();
+    // while (std::abs((float)(val - target)) > TURNTABLE_tol || std::abs((float)inc) > 10*TURNTABLE_tol) {
+    while (cycles_in_tol < 15 && timeout.read() < MAX_TIME) {
+	std::cout << cycles_in_tol << std::endl;
 	if(DEBUG) std::cout << "val is " << val << std::endl;
 	if(DEBUG) std::cout << "target is " << target << std::endl;
 	inc = pid.calculate(target, val);
@@ -91,6 +118,10 @@ void turntable::turn_angle_pid(int target)
 	    this->turn(true, (int) (inc));
 	else
 	    this->turn(false, (int) (-inc));
+	if(std::abs((float)(val - target)) < TURNTABLE_tol || std::abs((float)inc) < 7*TURNTABLE_tol)
+	    cycles_in_tol++;
+	else
+	    cycles_in_tol = 0;
     }
     this->turn(true, 0);
 }
@@ -254,14 +285,39 @@ void turntable::turn_angle_time(bool clockwise, int degrees)
     sw.stop();
 }
 
+void turntable::jiggle_table()
+{
+    // for(int i = 0; i < 5; i++)
+    // {
+    // 	rlink.command(MOTOR_4_GO, 127);
+    // 	delay(100);
+    // 	rlink.command(MOTOR_4_GO, 255);
+    // 	delay(100);
+    // }
+    
+    stopwatch sw;
+    for(int i = 0; i < 2; i++)
+    {
+	sw.start();
+	int ROT_CAL = 590;
+	rlink.command(MOTOR_4_GO, 64);
+	while(sw.read() < ROT_CAL);
+	rlink.command(MOTOR_4_GO, 0);
+	rlink.command(MOTOR_4_GO, 192);
+	sw.start();
+	while(sw.read() < ROT_CAL);
+	rlink.command(MOTOR_4_GO,0);
+    }
+}
+
 void turntable::push_nest()
 {
     //Retracts the arm (should be unneeded) then pushes the nest and retracts the arm after
     unsigned char current_reading = rlink.request(READ_PORT_1);
     rlink.command(WRITE_PORT_1, current_reading & (~0b00000010));
-    delay(100);
+    delay(200);
     rlink.command(WRITE_PORT_1, current_reading | 0b00000010);
-    delay(600);
+    delay(800);
     rlink.command(WRITE_PORT_1, current_reading & (~0b00000010));
 }
 

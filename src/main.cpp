@@ -87,6 +87,7 @@ int main()
 	// t.turn_to_nest_pid(8);
 	// delay(1000);
 
+
 	// t.turn_to_push_pid(0);
 	// delay(1000);
 	// t.turn_to_push_pid(1);
@@ -107,14 +108,11 @@ int main()
 	// delay(1000);
 	// while(true)
 	// {
-	//     std::cout << rlink.request(ADC0) << std::endl;
+	//     std::cout << t.read_pot() << std::endl;
 	//     delay(50);
 	// }
 
 
-	// t.push_nest();
-	// delay(1000);
-	// t.push_nest();
 	
 	// r.go_time(1000,127);
 	// r.turn_angle(180);
@@ -128,19 +126,27 @@ int main()
 	start_to_pallette(); // Align with pallette
 	a.move_arm(1);
 	delay(5000);
+	t.turn_to_nest_pid(0);
 	a.move_arm(0);
 	delay(1000);
+	t.jiggle_table();
 	a.move_arm(1);
 	delay(5000);
 	a.move_arm(0);
 	delay(1000);
+	a.move_arm(1);
 	pallette_to_curve();
 	r.traverse_curve();
-	// Line up with the middle nest delivery point after traversing the curve
+	//Line up with the middle nest delivery point after traversing the curve
 	r.go_time(DISTANCE_TO_CENTER, 127, true);
+
 	a.move_arm(1);
 	delay(300);
+	t.turn_to_push_pid(0);
 	t.push_nest();
+	t.push_nest();
+	
+	// t.jiggle_table();
 
 	return 0;
 }
@@ -168,7 +174,7 @@ void pallette_to_curve()
     r.follow_line_straight(100000, true); //Get back to the junction
     r.go_time(10, 127, false); //Move forward a bit to turn, less than turn function normally does
     r.turn_to_line(0, false, true); //Do the actual turn
-    r.follow_line_straight(150, true);
+    r.follow_line_straight(170, true);
     if(DEBUG) std::cout << "Finished following line" << std::endl;
 }
 
