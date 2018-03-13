@@ -28,7 +28,6 @@ void robot::take_path(int path[], int size)
 	default:
 	    return; //should never happen unless function is used incorrectly
 	}
-	std::cout << orientation << std::endl;
 	this->follow_line_straight(15000, true);
     }
 }
@@ -129,6 +128,7 @@ void robot::follow_line_straight(int expected_distance, bool recover)
 	    lost_line_count = 0;
 	if(lost_line_count > MAX_LOST_LINE_COUNT)
 	{
+	    int time_when_lost = junction_timeout.read();
 	    if(!recover)
 	    {
 		return; //Its just lost forever, no attempt to recover
@@ -136,11 +136,11 @@ void robot::follow_line_straight(int expected_distance, bool recover)
 	    if(!(this->recover_line(current_loc, latest_nonzero_reading) == current_loc))
 	    {
 		if(DEBUG) std::cout << "IM TOTALLY LOST" << std::endl;
-		this->follow_line_straight(100000, true);
+		this->follow_line_straight(expected_distance - time_when_lost/DISTANCE_CALIBRATION,  true);
 		break;
 	    }
 	    if(DEBUG) std::cout << "Im exactly where I was before" << std::endl;
-	    this->follow_line_straight(100000, true);
+	    this->follow_line_straight(expected_distance - time_when_lost/DISTANCE_CALIBRATION, true);
 
 	    return;
 	}

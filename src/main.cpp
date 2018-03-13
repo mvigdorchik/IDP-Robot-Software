@@ -11,14 +11,16 @@
 #define ROBOT_NUM 2
 
 void start_to_pallette();
+void pallette_to_curve();
 void demo_follow_line();
 void temp_turn_table(int nests);
-void push_egg(bool position);
 void demo_turntable();
 
 robot_link rlink;
 robot r;
 turntable t;
+arm a;
+
 /**
  * Datastructure to store the map of the field. Completely static.
  */
@@ -65,10 +67,9 @@ int main()
 */
 
 	rlink.command(RAMP_TIME, ROBOT_RAMP_TIME);
-	turntable t;
-	arm a;
-	push_egg(0);
 
+	// t.turn_to_nest_pid(0);
+	// delay(1000);
 	// t.turn_to_nest_pid(1);
 	// delay(1000);
 	// t.turn_to_nest_pid(2);
@@ -85,9 +86,9 @@ int main()
 	// delay(1000);
 	// t.turn_to_nest_pid(8);
 	// delay(1000);
-	// t.turn_to_nest_pid(9);
-	// delay(1000);
 
+	// t.turn_to_push_pid(0);
+	// delay(1000);
 	// t.turn_to_push_pid(1);
 	// delay(1000);
 	// t.turn_to_push_pid(2);
@@ -103,8 +104,6 @@ int main()
 	// t.turn_to_push_pid(7);
 	// delay(1000);
 	// t.turn_to_push_pid(8);
-	// delay(1000);
-	// t.turn_to_push_pid(9);
 	// delay(1000);
 	// while(true)
 	// {
@@ -124,17 +123,23 @@ int main()
 	// demo_follow_line();
 
 	
+	a.move_arm(1); //Ensure pneumatics are in correct start positions
+	t.move_ejector(0);
+	start_to_pallette(); // Align with pallette
+	a.move_arm(1);
+	delay(5000);
 	a.move_arm(0);
-	push_egg(0);
-	start_to_pallette();
-	r.follow_line_straight(200, true);
-	r.turn_to_line(1, false, true);
-	r.follow_line_straight(100000, true);
-	r.go_time(20, 127, false);
-	r.turn_to_line(0, false, true);
+	delay(1000);
+	a.move_arm(1);
+	delay(5000);
+	a.move_arm(0);
+	delay(1000);
+	pallette_to_curve();
 	r.traverse_curve();
-	r.go_time(100, 127, false);
-	r.go_time(22, 255, false);
+	// Line up with the middle nest delivery point after traversing the curve
+	r.go_time(DISTANCE_TO_CENTER, 127, true);
+	a.move_arm(1);
+	delay(300);
 	t.push_nest();
 
 	return 0;
@@ -149,44 +154,24 @@ void start_to_pallette()
     r.take_path(path, 4);
     r.turn_to_line(0, false,true);
     r.follow_line_straight(60, false);
-    r.go_time(180, 255, false);
+    a.move_arm(0);
+    r.go_time(150, 255, false);
+    r.go_time(60, 193, false);
 }
 
-void demo_turntable()
-{	
-    t.turn_to_nest_pid (2);
-    std::cout << "At nest 2" << std::endl;
-    //delay(5000);
-    t.turn_to_nest_pid (4);
-    //delay(5000);
-
-    std::cout << "At nest 6" << std::endl;
-    t.turn_to_nest_pid (6);
-    // delay(5000);
-
-    t.turn_to_nest_pid (9);
-    //delay(5000);
-
-    t.turn_to_nest_pid (7);
-    // delay(5000);
-
-    t.turn_to_nest_pid (1);
-    //delay(5000);
-
-    t.turn_to_nest_pid (3);
-    //delay(5000);
-
-    t.turn_to_nest_pid (8);
-}
-
-void demo_follow_line()
+void pallette_to_curve()
 {
-    int path[9] = {2,2,2,2,0,0,2,0,2};
-    r.take_path(path,9);
-    r.go_time(61, 127, true);
-    r.turn_angle(260);
-    r.go_time(50, 255, true);
+    // Go from pallette to the correct curve position. Requires being extra careful as pallette does not leave much room
+    r.follow_line_straight(20, true); //Get some distance away
+    r.follow_line_straight(160, true); //Get some distance away
+    r.turn_to_line(1, false, true); //turn around
+    r.follow_line_straight(100000, true); //Get back to the junction
+    r.go_time(10, 127, false); //Move forward a bit to turn, less than turn function normally does
+    r.turn_to_line(0, false, true); //Do the actual turn
+    r.follow_line_straight(150, true);
+    if(DEBUG) std::cout << "Finished following line" << std::endl;
 }
+
 
 void temp_turn_table(int nests)
 {
@@ -198,20 +183,43 @@ void temp_turn_table(int nests)
     rlink.command(MOTOR_4_GO, 0);
 }
 
-void push_egg(bool position)
-{
-    unsigned char current_reading = rlink.request(READ_PORT_1);
-    if(position)
-    {
-	rlink.command(WRITE_PORT_1, current_reading | 0b00000001);
-    }
-    else
-    {
-	rlink.command(WRITE_PORT_1, current_reading & (~0b00000001));
-    }
 
-    current_reading = rlink.request(READ_PORT_1);
-}
+//Demo functions
+// void demo_turntable()
+// {	
+//     t.turn_to_nest_pid (2);
+//     std::cout << "At nest 2" << std::endl;
+//     //delay(5000);
+//     t.turn_to_nest_pid (4);
+//     //delay(5000);
+
+//     std::cout << "At nest 6" << std::endl;
+//     t.turn_to_nest_pid (6);
+//     // delay(5000);
+
+//     t.turn_to_nest_pid (9);
+//     //delay(5000);
+
+//     t.turn_to_nest_pid (7);
+//     // delay(5000);
+
+//     t.turn_to_nest_pid (1);
+//     //delay(5000);
+
+//     t.turn_to_nest_pid (3);
+//     //delay(5000);
+
+//     t.turn_to_nest_pid (8);
+// }
+
+// void demo_follow_line()
+// {
+//     int path[9] = {2,2,2,2,0,0,2,0,2};
+//     r.take_path(path,9);
+//     r.go_time(61, 127, true);
+//     r.turn_angle(260);
+//     r.go_time(50, 255, true);
+// }
 
 /** \mainpage Passover Elf Software Documentation
  * 

@@ -173,6 +173,13 @@ public:
     void push_nest();
     
     /**
+     * Simply moves the ejector pneumatic either in or out
+
+     * @param position 0 corresponds to ejector moving in, 1 to ejector moving out
+     */
+    void move_ejector(bool position);
+    
+    /**
     * A list of all of the nests on the turntable. Index corresponds to the position of the nest.
     * Each nest is represented by a vector containing arbitrary number of eggs. In reality,
     * there will be a limit to how many small and big eggs fit, determined by experimentation.

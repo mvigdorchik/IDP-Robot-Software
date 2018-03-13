@@ -11,7 +11,7 @@ int turntable::read_pot()
     int result = rlink.request(ADC0);  //Reads measurement from ADC0
     result = (result - POT_START_OFFSET);
     result = result > POT_MAX_VALUE ? POT_MAX_VALUE : result;
-    result = result < 1 ? 1 : result;
+    result = result < -POT_START_OFFSET ? -POT_START_OFFSET : result;
 
     return result;
 }
@@ -81,7 +81,7 @@ void turntable::turn_angle_pid(int target)
     int val = this->read_pot();
     double inc = POT_MAX_VALUE;
     if(DEBUG) std::cout << "Target" << target << std::endl;
-    while (std::abs((float)(val - target)) > TURNTABLE_tol || std::abs((float)inc) > 5*TURNTABLE_tol) {
+    while (std::abs((float)(val - target)) > TURNTABLE_tol || std::abs((float)inc) > 20*TURNTABLE_tol) {
 	if(DEBUG) std::cout << "val is " << val << std::endl;
 	if(DEBUG) std::cout << "target is " << target << std::endl;
 	inc = pid.calculate(target, val);
@@ -258,9 +258,22 @@ void turntable::push_nest()
 {
     //Retracts the arm (should be unneeded) then pushes the nest and retracts the arm after
     unsigned char current_reading = rlink.request(READ_PORT_1);
-    rlink.command(WRITE_PORT_1, current_reading & (~0b00000001));
+    rlink.command(WRITE_PORT_1, current_reading & (~0b00000010));
     delay(100);
-    rlink.command(WRITE_PORT_1, current_reading | 0b00000001);
+    rlink.command(WRITE_PORT_1, current_reading | 0b00000010);
     delay(600);
-    rlink.command(WRITE_PORT_1, current_reading & (~0b00000001));
+    rlink.command(WRITE_PORT_1, current_reading & (~0b00000010));
+}
+
+void turntable::move_ejector(bool position)
+{
+    unsigned char current_reading = rlink.request(READ_PORT_1);
+    if(position)
+    {
+	rlink.command(WRITE_PORT_1, current_reading | 0b00000010);
+    }
+    else
+    {
+	rlink.command(WRITE_PORT_1, current_reading & (~0b00000010));
+    }
 }
