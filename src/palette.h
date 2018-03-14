@@ -12,6 +12,11 @@
 #define DEBUG 1 //If defined all of the print code will run, otherwise it won't
 extern robot_link rlink;
 
+
+/**
+ * This class is used to control the turntable (collection point C2)
+ * and it includes functions to read and write requierd ports on baloon board
+ */
 class palette
 {
 public:
@@ -20,10 +25,27 @@ public:
     */
     palette();
 
+    /**
+    * Rotates the pallette for a specific number of eggs in order for the arm
+    * to collect them
+
+    * @param egg_number The number of eggs we want the turntable to rotate and the arm to collect
+    */
     void rotate(int egg_number);
 
+    /**
+    * Gives a number of short pulses to the required pin in order to be
+    * registered by the PIC to give the required length of pulses to
+    * rotate the turntable
+
+    * @param short_pulses_no number of short pulses to send to the PIC
+    */
     void increment(int short_pulses_no);
 
+    /**
+    * Resets the turntable to default position by giving a long 1 s pulse to PIC
+    * so that
+    */
     void reset();
 };
 
