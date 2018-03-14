@@ -60,34 +60,34 @@ void turntable::turn_to_push_pid(int nest)
     int target;
     switch (nest) {
         case 0 :
-	    target = 67;
+	    target = 65;
 	    break;
 	case 1 :
-	    target = 95;
+	    target = 93;
 	    break;
 	case 2 :
-	    target = 124;
+	    target = 122;
 	    break;
 	case 3 :
-	    target = 152;
+	    target = 150;
 	    break;
 	case 4 :
-	    target = 182;
+	    target = 180;
 	    break;
 	case 5 :
-	    target = 216;
+	    target = 214;
 	    break;
 	case 6 :
-	    target = 248;
+	    target = 246;
 	    break;
 	case 7 :
-	    target = 9;
+	    target = 7;
 	    break;
 	case 8 :
-	    target = 37;
+	    target = 35;
 	    break;
 	default :
-	    target = 67;
+	    target = 65;
     }
     turn_angle_pid(target);
 }

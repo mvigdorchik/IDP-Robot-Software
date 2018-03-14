@@ -229,7 +229,7 @@ void robot::return_to_curve()
     this->go_time(2*DISTANCE_TO_CENTER, 127, true); //Move forward about 100mm, this can be changed.
     this->turn_angle(90);
     this->go_to_line(5000);
-    this->follow_line_straight(1000, 1);
+    this->follow_line_straight(11000, 1);
 
     orientation = SOUTH;
     current_loc = "C2";

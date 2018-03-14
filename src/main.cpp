@@ -14,6 +14,7 @@ void start_to_pallette();
 void pallette_to_curve();
 void demo_follow_line();
 void temp_turn_table(int nests);
+void test_turntable();
 void demo_turntable();
 
 robot_link rlink;
@@ -65,86 +66,54 @@ int main()
 	junctions["H4"] = point(300, 0);
 	junctions["H5"] = point(300, 0); //TODO Verify measurements for points where coordinates are 0
 */
-
+	stopwatch main_timer;
 	rlink.command(RAMP_TIME, ROBOT_RAMP_TIME);
-
-	// t.turn_to_nest_pid(0);
-	// delay(1000);
-	// t.turn_to_nest_pid(1);
-	// delay(1000);
-	// t.turn_to_nest_pid(2);
-	// delay(1000);
-	// t.turn_to_nest_pid(3);
-	// delay(1000);
-	// t.turn_to_nest_pid(4);
-	// delay(1000);
-	// t.turn_to_nest_pid(5);
-	// delay(1000);
-	// t.turn_to_nest_pid(6);
-	// delay(1000);
-	// t.turn_to_nest_pid(7);
-	// delay(1000);
-	// t.turn_to_nest_pid(8);
-	// delay(1000);
-
-
-	// t.turn_to_push_pid(0);
-	// delay(1000);
-	// t.turn_to_push_pid(1);
-	// delay(1000);
-	// t.turn_to_push_pid(2);
-	// delay(1000);
-	// t.turn_to_push_pid(3);
-	// delay(1000);
-	// t.turn_to_push_pid(4);
-	// delay(1000);
-	// t.turn_to_push_pid(5);
-	// delay(1000);
-	// t.turn_to_push_pid(6);
-	// delay(1000);
-	// t.turn_to_push_pid(7);
-	// delay(1000);
-	// t.turn_to_push_pid(8);
-	// delay(1000);
-	// while(true)
-	// {
-	//     std::cout << t.read_pot() << std::endl;
-	//     delay(50);
-	// }
-
-
-	
-	// r.go_time(1000,127);
-	// r.turn_angle(180);
-
-	// r.follow_line_straight(100000, true);
-	// demo_follow_line();
-
+	main_timer.start();
 	
 	a.move_arm(1); //Ensure pneumatics are in correct start positions
-	t.move_ejector(0);
-	start_to_pallette(); // Align with pallette
-	a.move_arm(1);
-	delay(5000);
-	t.turn_to_nest_pid(0);
-	a.move_arm(0);
-	delay(1000);
-	t.jiggle_table();
-	a.move_arm(1);
-	delay(5000);
-	a.move_arm(0);
-	delay(1000);
-	a.move_arm(1);
-	pallette_to_curve();
-	r.traverse_curve();
-	//Line up with the middle nest delivery point after traversing the curve
-	r.go_time(DISTANCE_TO_CENTER, 127, true);
+	t.move_ejector(1);
+	// start_to_pallette(); // Align with pallette
+	// std::cout << main_timer.read() << std::endl;
+	// for(int i = 0; i < 4; i++)
+	// {
+	// a.move_arm(1);
+	// delay(3000);
+	// t.turn_to_nest_pid(0);
+	// a.move_arm(0);
+	// delay(1000);
+	// t.jiggle_table();
+	// }
+	// std::cout << main_timer.read() << std::endl;
+	
+	// a.move_arm(1);
+	// pallette_to_curve();
+	// std::cout << main_timer.read() << std::endl;
+	
+	// r.traverse_curve();
+	// //Line up with the middle nest delivery point after traversing the curve
+	// r.go_time(DISTANCE_TO_CENTER, 127, true);
+	// // std::cout << main_timer.read() << std::endl;
+	// r.turn_to_line(0, true, true);
+	// r.follow_line_straight(10000, true);
+	// r.turn_to_line(1, true, true);
 
-	a.move_arm(1);
-	delay(300);
-	t.turn_to_push_pid(0);
-	t.push_nest();
-	t.push_nest();
+	// a.move_arm(1);
+	// delay(300);
+	// test_turntable();
+	// std::cout << main_timer.read() << std::endl;
+
+	// r.turn_to_line(1, false, true);
+	// r.follow_line_straight(10000, true);
+
+	// // r.turn_to_line(1, false, true);
+	// r.follow_line_straight(50000, true);
+	// r.return_to_curve();
+	// r.turn_to_line(1, true, true);
+	// int return_path[3] = {2,2,0};
+	// r.take_path(return_path, 3);
+	// r.go_time(53, 127, false);
+
+	// test_turntable();
 	
 	// t.jiggle_table();
 
@@ -189,7 +158,61 @@ void temp_turn_table(int nests)
     rlink.command(MOTOR_4_GO, 0);
 }
 
+void test_turntable()
+{
+    // t.turn_to_nest_pid(0);
+    // delay(1000);
+    // t.turn_to_nest_pid(1);
+    // delay(1000);
+    // t.turn_to_nest_pid(2);
+    // delay(1000);
+    // t.turn_to_nest_pid(3);
+    // delay(1000);
+    // t.turn_to_nest_pid(4);
+    // delay(1000);
+    // t.turn_to_nest_pid(5);
+    // delay(1000);
+    // t.turn_to_nest_pid(6);
+    // delay(1000);
+    // t.turn_to_nest_pid(7);
+    // delay(1000);
+    // t.turn_to_nest_pid(8);
+    // delay(1000);
 
+    t.turn_to_push_pid(0);
+    t.push_nest();
+    delay(1000);
+    t.turn_to_push_pid(1);
+    t.push_nest();
+    delay(1000);
+    t.turn_to_push_pid(2);
+    t.push_nest();
+    delay(1000);
+    t.turn_to_push_pid(3);
+    t.push_nest();
+    delay(1000);
+    t.turn_to_push_pid(4);
+    t.push_nest();
+    delay(1000);
+    t.turn_to_push_pid(5);
+    t.push_nest();
+    delay(1000);
+    t.turn_to_push_pid(6);
+    t.push_nest();
+    delay(1000);
+    t.turn_to_push_pid(7);
+    t.push_nest();
+    delay(1000);
+    t.turn_to_push_pid(8);
+    t.push_nest();
+    delay(1000);
+    
+    // while(true)	
+    // {
+    // 	std::cout << t.read_pot() << std::endl;
+    // 	delay(50);
+    // }
+}
 //Demo functions
 // void demo_turntable()
 // {	
