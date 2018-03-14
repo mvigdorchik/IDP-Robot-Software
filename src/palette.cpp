@@ -27,7 +27,7 @@ void palette::reset()
     unsigned char current_state = rlink.request(READ_PORT_0);
     current_state |= 0b01000000; // Make pin high
     rlink.command(WRITE_PORT_0, current_state);
-    delay(1000);
+    delay(2000);
     current_state &= 0b00111111; // Make pin low
     rlink.command(WRITE_PORT_0, current_state);
 }

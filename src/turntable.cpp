@@ -90,6 +90,7 @@ void turntable::turn_to_push_pid(int nest)
 	    target = 65;
     }
     turn_angle_pid(target);
+    std::cout << "target is:" << target << std::endl;
 }
 
 //TODO !!!!
@@ -104,15 +105,15 @@ void turntable::turn_angle_pid(int target)
     int cycles_in_tol = 0;
     int MAX_TIME = 4500;
     stopwatch timeout;
-    if(DEBUG) std::cout << "Target" << target << std::endl;
+    // if(DEBUG) std::cout << "Target" << target << std::endl;
     timeout.start();
     // while (std::abs((float)(val - target)) > TURNTABLE_tol || std::abs((float)inc) > 10*TURNTABLE_tol) {
     while (cycles_in_tol < 15 && timeout.read() < MAX_TIME) {
-	std::cout << cycles_in_tol << std::endl;
-	if(DEBUG) std::cout << "val is " << val << std::endl;
-	if(DEBUG) std::cout << "target is " << target << std::endl;
+	// std::cout << cycles_in_tol << std::endl;
+	// if(DEBUG) std::cout << "val is " << val << std::endl;
+	// if(DEBUG) std::cout << "target is " << target << std::endl;
 	inc = pid.calculate(target, val);
-	if(DEBUG) std::cout << "inc is " << inc << std::endl;
+	// if(DEBUG) std::cout << "inc is " << inc << std::endl;
 	val = this->read_pot();
 	if (inc>0)
 	    this->turn(true, (int) (inc));
@@ -285,11 +286,32 @@ void turntable::turn_angle_time(bool clockwise, int degrees)
     sw.stop();
 }
 
+Egg turntable::measure_egg_type()
+{
+    int is_big;
+    unsigned char current_values = rlink.request(READ_PORT_0);
+    rlink.command(WRITE_PORT_0, current_values | 0b1111111);
+    is_big = rlink.request(READ_PORT_0) /* & 0b00100000 */;
+    std::cout << is_big << std::endl;
+    
+    return BIG_PINK;
+}
+
+int turntable::determine_nest(Egg egg_type)
+{
+    return 0;
+}
+
+void turntable::place_egg()
+{
+    //TODO: REMEMBER TO USE THE LIGHTS`
+}
+
 void turntable::jiggle_table()
 {
     // for(int i = 0; i < 5; i++)
     // {
-    // 	rlink.command(MOTOR_4_GO, 127);
+    // 	rlink.command(MOTOR_4_GO, 127); 
     // 	delay(100);
     // 	rlink.command(MOTOR_4_GO, 255);
     // 	delay(100);
@@ -299,11 +321,11 @@ void turntable::jiggle_table()
     for(int i = 0; i < 2; i++)
     {
 	sw.start();
-	int ROT_CAL = 590;
-	rlink.command(MOTOR_4_GO, 64);
+	int ROT_CAL = 400;
+	rlink.command(MOTOR_4_GO, 127);
 	while(sw.read() < ROT_CAL);
 	rlink.command(MOTOR_4_GO, 0);
-	rlink.command(MOTOR_4_GO, 192);
+	rlink.command(MOTOR_4_GO, 255);
 	sw.start();
 	while(sw.read() < ROT_CAL);
 	rlink.command(MOTOR_4_GO,0);

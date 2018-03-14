@@ -7,6 +7,7 @@
 #include "robot.h"
 #include "turntable.h"
 #include "arm.h"
+#include "palette.h"
 
 #define ROBOT_NUM 2
 
@@ -21,6 +22,7 @@ robot_link rlink;
 robot r;
 turntable t;
 arm a;
+palette p;
 
 /**
  * Datastructure to store the map of the field. Completely static.
@@ -69,30 +71,48 @@ int main()
 	stopwatch main_timer;
 	rlink.command(RAMP_TIME, ROBOT_RAMP_TIME);
 	main_timer.start();
+	// p.reset();
+	// for(int i = 0; i < 8; i++)
+	// {
+	//     std::cout << "sending " << i << " pulses" << std::endl;
+	//     p.rotate(i);
+	//     delay(5000);
+	// }
+	// std::cout << r.read_beacon() << std::endl;
 	
 	a.move_arm(1); //Ensure pneumatics are in correct start positions
-	t.move_ejector(1);
+	t.move_ejector(0);
+	t.measure_egg_type();
+	
 	// start_to_pallette(); // Align with pallette
-	// std::cout << main_timer.read() << std::endl;
 	// for(int i = 0; i < 4; i++)
 	// {
 	// a.move_arm(1);
 	// delay(3000);
 	// t.turn_to_nest_pid(0);
 	// a.move_arm(0);
-	// delay(1000);
+	// delay(3000);
 	// t.jiggle_table();
+	// delay(3000);
 	// }
-	// std::cout << main_timer.read() << std::endl;
-	
+	// for(int i = 0; i < 4; i++)
+	// {
 	// a.move_arm(1);
+	// delay(3000);
+	// t.turn_to_nest_pid(1);
+	// a.move_arm(0);
+	// delay(3000);
+	// t.jiggle_table();
+	// delay(3000);
+	// }
+	
+	// a.move_arm(0);
 	// pallette_to_curve();
 	// std::cout << main_timer.read() << std::endl;
 	
 	// r.traverse_curve();
 	// //Line up with the middle nest delivery point after traversing the curve
 	// r.go_time(DISTANCE_TO_CENTER, 127, true);
-	// // std::cout << main_timer.read() << std::endl;
 	// r.turn_to_line(0, true, true);
 	// r.follow_line_straight(10000, true);
 	// r.turn_to_line(1, true, true);
@@ -160,6 +180,7 @@ void temp_turn_table(int nests)
 
 void test_turntable()
 {
+    a.move_arm(1);
     // t.turn_to_nest_pid(0);
     // delay(1000);
     // t.turn_to_nest_pid(1);

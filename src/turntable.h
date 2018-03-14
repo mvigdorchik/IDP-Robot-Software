@@ -34,7 +34,7 @@
 #define TIME_TO_REVERSE 130 //Time to center on the nest for initial alignment
 #define TOTAL_NUMBER_NESTS 9 //Number of nests
 #define BLACK_HI 1 // If set to 1, sensors will give 1 when see black
-#define POT_START_OFFSET 5 // Value indicated by pot at the first nest
+#define POT_START_OFFSET 9 // Value indicated by pot at the first nest
 #define POT_MAX_VALUE 255 // The limit of POT corresponding to 360 degrees
 #define COLLECT_TO_PUSH_OFFSET 66 //ADC reading difference between collecting and depositing nest
 extern robot_link rlink;
@@ -45,8 +45,8 @@ extern robot_link rlink;
 enum Egg
 {
 	SMALL_YELLOW,
-	BIG_YELLOW,
 	SMALL_BLUE,
+	BIG_YELLOW,
 	BIG_PINK
 };
 
@@ -190,6 +190,15 @@ public:
     * there will be a limit to how many small and big eggs fit, determined by experimentation.
     */
     std::vector<Egg> nests[TOTAL_NUMBER_NESTS];
+
+    /**
+     * The color of the large egg required for the competition, set during beacon reading.
+     */
+    Egg big_egg;
+    /**
+     * The color of the small egg required for the competition, set during beacon reading.
+     */
+    Egg small_egg;
 
 private:
     /**

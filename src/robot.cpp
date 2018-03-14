@@ -315,8 +315,9 @@ void robot::go_to_line(int timeout)
 int robot::read_beacon()
 {
     rlink.command(WRITE_PORT_1,0b00000100);
+    // rlink.command(WRITE_PORT_1,0b11111111);
     bool last_state = false;
-    bool current_state = false;
+    int current_state = 0;
     int transition_count = 0;
     int transition_count2 = 0; //Used to verify the first reading
     stopwatch sw;
@@ -325,12 +326,14 @@ int robot::read_beacon()
     while(sw.read() < 1500)
     {
 	delay(10);
-	current_state = (bool)(rlink.request(READ_PORT_1) & 0b000000100);
+	current_state = /* (bool) */(rlink.request(READ_PORT_1) /* & 0b000000100 */);
+	std::cout << current_state << std::endl;
 	if(last_state && !current_state)
 	{
 	    if(transition_count == 0)
 		sw.start();
 	    transition_count  += 1;
+	    std::cout << "found transition" << std::endl;
 	}
 	last_state=current_state;
 
