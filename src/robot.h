@@ -181,6 +181,14 @@ public:
     void line_follow_reverse(int distance);
 
     /**
+     * Moves the robot away from the palette for a time (at least 400mm) to let eggs refill.
+
+     * @param time The time to wait after moving away.
+     * @pre The robot must start aligned to the palette.
+     */
+    void allow_egg_refill(int time);
+
+    /**
      * Turns the robot at a given speed while still maintaining the forward motion.
      * Works by slowing down the speed of the appropriate motor. It will never turn faster
      * than stopping the second motor.  

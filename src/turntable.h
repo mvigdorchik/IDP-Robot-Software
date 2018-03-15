@@ -10,6 +10,7 @@
 #include <cmath>
 #include <vector>
 #include <stopwatch.h>
+#include "arm.h"
 
 #define DEBUG 1 //If defined all of the print code will run, otherwise it won't
 
@@ -21,7 +22,7 @@
 #define TURNTABLE_Kp 12.0 //Proportional parameter for PID controller
 #define TURNTABLE_Kd 0.0 //Derivative parameter for PID controller
 #define TURNTABLE_dt 5 //Timestep for PID controller
-#define TURNTABLE_tol 1.5 //Tolerance for ending turning
+#define TURNTABLE_tol 3 //Tolerance for ending turning
 #define TURNTABLE_SLOW_SPEED 40 // Speed set to reverse slowly for initial alignment
 #define TURNTABLE_FIRST_DECREASED_SPEED 80 // Value of first speed reduced, i.e. at one line before target
 #define TURNTABLE_SECOND_DECREASED_SPEED 40 // Value of second speed reduced, i.e. at one white space before target
@@ -34,11 +35,11 @@
 #define TIME_TO_REVERSE 130 //Time to center on the nest for initial alignment
 #define TOTAL_NUMBER_NESTS 9 //Number of nests
 #define BLACK_HI 1 // If set to 1, sensors will give 1 when see black
-#define POT_START_OFFSET 9 // Value indicated by pot at the first nest
+#define POT_START_OFFSET 6 // Value indicated by pot at the first nest
 #define POT_MAX_VALUE 255 // The limit of POT corresponding to 360 degrees
 #define COLLECT_TO_PUSH_OFFSET 66 //ADC reading difference between collecting and depositing nest
 extern robot_link rlink;
-
+extern arm a;
 /**
 * Enum to handle the four different kinds of eggs.
 */
@@ -143,6 +144,12 @@ public:
     int read_pot();
 
     /**
+     * This function will measure the light dependent resistor before any eggs are placed.
+     * This should be done before placing eggs, for calibration purposes.
+     */
+    void calibrate_egg_sensor();
+    
+    /**
     * Determines the type of egg currently in the bucket.
 
     * @return A value from 0-3 in the form of the Egg enum.
@@ -153,8 +160,10 @@ public:
     /**
     * Determines the nest that best fits the current egg. Uses the current contents of the nests
     * and the desired composition of nests as well as the current turntable position to minimize travel.
+    * A return value of -1 means that there is no valid place
 
     * @param egg_type Which egg is currently in the bucket to then move to a nest.
+    * @return Which nest number the egg should be placed into
     */
     int determine_nest(Egg egg_type);
 
@@ -164,8 +173,9 @@ public:
     * @see determine_nest()
     * @see measure_egg_type()
     * @see move_arm()
+    * @return -1 if the nests are all full and 0 otherwise.
     */
-    void place_egg();
+    int place_egg();
 
     /**
      * Juggles the turntable to put the eggs in place
@@ -192,11 +202,11 @@ public:
     std::vector<Egg> nests[TOTAL_NUMBER_NESTS];
 
     /**
-     * The color of the large egg required for the competition, set during beacon reading.
+     * The type of the large egg required for the competition, set during beacon reading.
      */
     Egg big_egg;
     /**
-     * The color of the small egg required for the competition, set during beacon reading.
+     * The type of the small egg required for the competition, set during beacon reading.
      */
     Egg small_egg;
 
@@ -205,6 +215,11 @@ private:
      * The nest the sorting bucket is currently over, corresponding to turntable rotation.
      */
     int current_nest;
+
+    /**
+     * The calibration constant for the light dependent resistor before measuring an egg.
+     */
+    int no_egg_reading;
 };
 
 #endif /* TURNTABLE_H */

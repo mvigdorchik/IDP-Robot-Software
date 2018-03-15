@@ -147,6 +147,7 @@ void robot::follow_line_straight(int expected_distance, bool recover)
 	if(junction_timeout.read() > (expected_distance * DISTANCE_CALIBRATION))
 	{
 	    //This is useful for following the line a short distance
+	    this->go(0);
 	    return;
 	}
     }
@@ -235,6 +236,16 @@ void robot::return_to_curve()
     current_loc = "C2";
 }
 
+void robot::allow_egg_refill(int time)
+{
+    this->follow_line_straight(50 , true); //May need to adjust distance to go far enough.
+    this->follow_line_straight(140, false);
+    this->go(0);
+    delay(time);
+    this->go_time(170, 255, false); //TODO Calibrate the amount the robot returns to line up again
+    this->go_time(80, 193, false);
+}
+
 // void robot::go(unsigned char speed)
 // {
 //     rlink.command(BOTH_MOTORS_GO_OPPOSITE, speed);
@@ -242,9 +253,9 @@ void robot::return_to_curve()
 void robot::go(unsigned char speed)
 {
     //This alternate version of go will adjust one motor slightly to make up for wheel imbalance
-    unsigned char reverse_speed = speed > 127 ? speed - 128 : speed + 128;  
+    float reverse_speed = speed > 127 ? speed - 128 : speed + 128;  
     rlink.command(MOTOR_1_GO, speed);
-    rlink.command(MOTOR_2_GO, reverse_speed - speed/100);
+    rlink.command(MOTOR_2_GO, reverse_speed - 0.9* (float)speed/100);
 }
 
 //TODO: Improve this function immensely as it assumes thing is going full speed and is rather stupid
@@ -327,13 +338,12 @@ int robot::read_beacon()
     {
 	delay(10);
 	current_state = /* (bool) */(rlink.request(READ_PORT_1) /* & 0b000000100 */);
-	std::cout << current_state << std::endl;
 	if(last_state && !current_state)
 	{
 	    if(transition_count == 0)
 		sw.start();
 	    transition_count  += 1;
-	    std::cout << "found transition" << std::endl;
+	    // std::cout << "found transition" << std::endl;
 	}
 	last_state=current_state;
 

@@ -26,12 +26,11 @@ public:
     palette();
 
     /**
-    * Rotates the pallette for a specific number of eggs in order for the arm
+    * Rotates the pallette one eggs worth in order
     * to collect them
 
-    * @param egg_number The number of eggs we want the turntable to rotate and the arm to collect
     */
-    void rotate(int egg_number);
+    void rotate(int number);
 
     /**
     * Gives a number of short pulses to the required pin in order to be

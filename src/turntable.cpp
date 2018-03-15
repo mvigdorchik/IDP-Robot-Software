@@ -2,7 +2,7 @@
 #include "pid.h"
 
 //Default constructor
-turntable::turntable():current_nest(1)
+turntable::turntable():current_nest(0)
 {
 }
 
@@ -286,25 +286,138 @@ void turntable::turn_angle_time(bool clockwise, int degrees)
     sw.stop();
 }
 
+void turntable::calibrate_egg_sensor()
+{
+    no_egg_reading = rlink.request(ADC1);
+}
+
 Egg turntable::measure_egg_type()
 {
-    int is_big;
+    bool is_big;
     unsigned char current_values = rlink.request(READ_PORT_0);
-    rlink.command(WRITE_PORT_0, current_values | 0b1111111);
-    is_big = rlink.request(READ_PORT_0) /* & 0b00100000 */;
+    rlink.command(WRITE_PORT_0, current_values | 0b01100000);
+    is_big = rlink.request(READ_PORT_0) & 0b00100000;
+    is_big = !is_big; //The sensor returns 1 when it is small so fix that
+    rlink.command(WRITE_PORT_0, current_values & 0b10111111); //Turn off the LED to save current
     std::cout << is_big << std::endl;
+    bool is_yellow;
+    if(is_big)
+    {
+	is_yellow = rlink.request(ADC1) < 1.17*no_egg_reading;
+    }
+    else
+    {
+	is_yellow = rlink.request(ADC1) < 1.17*no_egg_reading; //TODO change the calibration of this
+    }
     
-    return BIG_PINK;
+    Egg result;
+    if(is_big)
+	result = is_yellow ? BIG_YELLOW : BIG_PINK;
+    else
+	result = is_yellow ? SMALL_YELLOW : SMALL_BLUE;
+	
+    return result;
 }
 
 int turntable::determine_nest(Egg egg_type)
 {
-    return 0;
+    if(egg_type == big_egg || egg_type == small_egg)
+    {
+	//Loop through every non recycling nest to check for an open spot
+	//Note that even nests 0,2,4,6 are the real nests. This makes everything go generally faster
+	for(int i = 0; i < 7; i++)
+	{
+	    if(i % 2 == 1) //only want even nests
+		continue;
+	    if(nests[i].size() < 4) //4 eggs is a full nest
+	    {
+		int egg_count = 0;
+		//Count the eggs of egg_type to ensure that there is only 0 or 1. 
+		for(std::vector<Egg>::iterator it = nests[i].begin(); it != nests[i].end(); ++it)
+		{
+		    if(*it == egg_type)
+			egg_count++;
+		}
+		if(egg_count < 2) //Hey we found the right nest!
+		{
+		    nests[i].push_back(egg_type);
+		    return i;
+		}
+	    }
+	}
+    }
+    //If egg_type made it this far then it must be up for recycling
+    for(int i = 1; i < TOTAL_NUMBER_NESTS; i++)
+    {
+	//Skip even nests, but allow nest 8 since thats also recycling
+	if(i % 2 == 0 && i != 8)
+	    continue;
+	if(nests[i].size() < 4)
+	{
+	    int size_egg_count = 0;
+	    //Count the eggs of egg_types size to ensure that there is only 0 or 1 of that size. 
+	    for(std::vector<Egg>::iterator it = nests[i].begin(); it != nests[i].end(); ++it)
+	    {
+		//Add an egg to count if and only if the size of the egg being tested and that egg is the same
+		if((*it >= 2 && egg_type >=2) || (*it <= 1 && egg_type <=1))
+		    size_egg_count++;
+	    }
+	    if(size_egg_count < 2) 
+	    {
+		nests[i].push_back(egg_type);
+		return i;
+	    }
+	}
+    }
+    return -1; // No space available means that every nest is full.
 }
 
-void turntable::place_egg()
+int turntable::place_egg()
 {
     //TODO: REMEMBER TO USE THE LIGHTS`
+    Egg type = this->measure_egg_type();
+    if(DEBUG) std::cout << "Egg type is:" << type << std::endl;
+    int nest_num = this->determine_nest(type);
+    if(DEBUG) std::cout << "Nest number is: " << nest_num << std::endl;
+
+    //Code for indicator lights
+    int current_state = rlink.request(READ_PORT_1) & 0b00000111;
+    int output = 0;
+    switch (type) {
+    case BIG_YELLOW: {
+	output = 1 << 3;
+	break;
+    }
+    case BIG_PINK: {
+	output = 1 << 4;
+	break;
+    }
+    case SMALL_YELLOW: {
+	output = 1 << 5;
+	break;
+    }
+    case SMALL_BLUE: {
+	output = 1 << 6;
+	break;
+    }
+default:
+	break;
+    }
+    output |= 0b1000000;
+    rlink.command(WRITE_PORT_1, output | current_state);
+    
+    if(nest_num == -1)
+	return -1; //Time to leave with full nests
+
+    this->turn_to_nest_pid(nest_num);
+    a.move_arm(0); //Let the egg fall through by moving arm up
+    delay(1000);
+    
+    if(type >= 2) //This means that the egg is big
+	this->jiggle_table(); //Jiggles the turntable to ensure big egg falls in correctly
+    a.move_arm(1); //Put the arm back down to knock further eggs
+
+    return 0;
 }
 
 void turntable::jiggle_table()
@@ -318,7 +431,7 @@ void turntable::jiggle_table()
     // }
     
     stopwatch sw;
-    for(int i = 0; i < 2; i++)
+    for(int i = 0; i < 1; i++)
     {
 	sw.start();
 	int ROT_CAL = 400;

@@ -13,10 +13,13 @@
 
 void start_to_pallette();
 void pallette_to_curve();
+void determine_start_params();
 void demo_follow_line();
 void temp_turn_table(int nests);
 void test_turntable();
 void demo_turntable();
+
+int delivery; //Which delivery point the vehicle needs to go to, 1 or 2
 
 robot_link rlink;
 robot r;
@@ -68,75 +71,101 @@ int main()
 	junctions["H4"] = point(300, 0);
 	junctions["H5"] = point(300, 0); //TODO Verify measurements for points where coordinates are 0
 */
+
+	//for testing purposes:
 	stopwatch main_timer;
 	rlink.command(RAMP_TIME, ROBOT_RAMP_TIME);
 	main_timer.start();
-	// p.reset();
-	// for(int i = 0; i < 8; i++)
-	// {
-	//     std::cout << "sending " << i << " pulses" << std::endl;
-	//     p.rotate(i);
-	//     delay(5000);
-	// }
-	// std::cout << r.read_beacon() << std::endl;
+	determine_start_params();
+	std::cout << "Got start params" << std::endl;
 	
 	a.move_arm(1); //Ensure pneumatics are in correct start positions
 	t.move_ejector(0);
-	t.measure_egg_type();
-	
-	// start_to_pallette(); // Align with pallette
-	// for(int i = 0; i < 4; i++)
-	// {
-	// a.move_arm(1);
-	// delay(3000);
-	// t.turn_to_nest_pid(0);
-	// a.move_arm(0);
-	// delay(3000);
-	// t.jiggle_table();
-	// delay(3000);
-	// }
-	// for(int i = 0; i < 4; i++)
-	// {
-	// a.move_arm(1);
-	// delay(3000);
-	// t.turn_to_nest_pid(1);
-	// a.move_arm(0);
-	// delay(3000);
-	// t.jiggle_table();
-	// delay(3000);
-	// }
-	
-	// a.move_arm(0);
-	// pallette_to_curve();
-	// std::cout << main_timer.read() << std::endl;
-	
-	// r.traverse_curve();
-	// //Line up with the middle nest delivery point after traversing the curve
-	// r.go_time(DISTANCE_TO_CENTER, 127, true);
-	// r.turn_to_line(0, true, true);
-	// r.follow_line_straight(10000, true);
-	// r.turn_to_line(1, true, true);
+	t.turn_to_nest_pid(0);
+	start_to_pallette(); // Align with pallette, also moves the arm up before aligning
 
-	// a.move_arm(1);
-	// delay(300);
+	p.reset();
+	std::cout << "RESET" << std::endl;
+	delay(1000);
+	for(int j = 0; j < 2; j++)
+	{
+	for(int i = 0; i < 7; i++)
+	{
+	    p.rotate(i == 4 ? 3 : 2);
+	    delay(3000);
+	    t.place_egg();
+	    // Egg type = t.measure_egg_type();
+	    // int nest = t.determine_nest(type);
+	    // t.turn_to_nest_pid(nest);
+	    // a.move_arm(0);
+	    // delay(1000);
+	    // if(type > 1)
+	    // 	t.jiggle_table();
+	    // a.move_arm(1);
+	}
+	if(j==0)
+	    r.allow_egg_refill(1);
+	}
+	a.move_arm(0);
+	pallette_to_curve();
+	
+	r.traverse_curve();
+	//Line up with the middle nest delivery point after traversing the curve
+	r.go_time(DISTANCE_TO_CENTER, 127, true);
+	if(delivery == 2) //This is already at delivery point 2
+	{
+	    //Wow we are already here, don't need to do anything
+	}
+	else //Move to delivery point 1
+	{
+	    r.turn_to_line(1, false, true);
+	    r.follow_line_straight(10000, true);
+	    r.turn_to_line(0, true, true);
+	    r.go_time(20, 255, false);
+	}
+	a.move_arm(1);
+	delay(300);
+	for(int i =0; i < 7; i++)
+	{
+	    if((i % 2 != 0) || t.nests[i].size() == 0)
+		continue;
+	    t.turn_to_push_pid(i);
+	    t.push_nest();
+	    r.turn_angle(340);
+	    delay(200);
+	}
+	
+	r.turn_to_line(0, false, true);
+	r.follow_line_straight(10000, true);
+	if(delivery == 1) //Need to move further for recycling
+	    r.follow_line_straight(10000, true);
+	r.turn_to_line(1, true, true);
+	r.go_time(20, 255, false);
+
+	a.move_arm(1);
+	delay(300);
+	for(int i =0; i < 9; i++)
+	{
+	    if((i % 2 == 0 && i != 8) || t.nests[i].size() == 0)
+		continue;
+	    t.turn_to_push_pid(i);
+	    t.push_nest();
+	    delay(200);
+	    r.turn_angle(25);
+	}
+	delay(3000);
+	
+	r.turn_to_line(1, false, true);
+	r.follow_line_straight(10000, true);
+	r.follow_line_straight(50000, true); //Get into position to return to curve
+	r.return_to_curve();
+	r.turn_to_line(1, true, true);
+	int return_path[3] = {2,2,0};
+	r.take_path(return_path, 3);
+	r.go_time(53, 127, false);
+	std::cout << main_timer.read() << std::endl;
+
 	// test_turntable();
-	// std::cout << main_timer.read() << std::endl;
-
-	// r.turn_to_line(1, false, true);
-	// r.follow_line_straight(10000, true);
-
-	// // r.turn_to_line(1, false, true);
-	// r.follow_line_straight(50000, true);
-	// r.return_to_curve();
-	// r.turn_to_line(1, true, true);
-	// int return_path[3] = {2,2,0};
-	// r.take_path(return_path, 3);
-	// r.go_time(53, 127, false);
-
-	// test_turntable();
-	
-	// t.jiggle_table();
-
 	return 0;
 }
 
@@ -148,10 +177,10 @@ void start_to_pallette()
     int path[4] = {2, 2, 1, 2};
     r.take_path(path, 4);
     r.turn_to_line(0, false,true);
-    r.follow_line_straight(60, false);
+    r.follow_line_straight(110, false); //Used to be distance of 60
     a.move_arm(0);
-    r.go_time(150, 255, false);
-    r.go_time(60, 193, false);
+    r.go_time(180, 255, false);
+    r.go_time(140, 163, false);
 }
 
 void pallette_to_curve()
@@ -178,11 +207,48 @@ void temp_turn_table(int nests)
     rlink.command(MOTOR_4_GO, 0);
 }
 
+/**
+ * Reads the IR beacon at the start and sets all of the relevant parameters for the rest of the code
+ */
+void determine_start_params()
+{
+    int beacon;
+    //beacon = r.read_beacon();
+    beacon = 4; //TODO REMOVE THIS
+    switch (beacon) {
+    case 1: 
+	t.small_egg = SMALL_BLUE;
+	t.big_egg = BIG_YELLOW;
+	delivery = 1;
+	break;
+    case 3:
+	t.small_egg = SMALL_BLUE;
+	t.big_egg = BIG_YELLOW;
+	delivery = 2;
+	break;
+    case 4:
+	t.small_egg = SMALL_YELLOW;
+	t.big_egg = BIG_PINK;
+	delivery = 1;
+	break;
+    case 6:
+	t.small_egg = SMALL_YELLOW;
+	t.big_egg = BIG_PINK;
+	delivery = 2;
+	break;
+    default:
+	t.small_egg = SMALL_BLUE;
+	t.big_egg = BIG_YELLOW;
+	delivery = 1;
+	break;
+    }
+}
+
 void test_turntable()
 {
     a.move_arm(1);
-    // t.turn_to_nest_pid(0);
-    // delay(1000);
+    t.turn_to_nest_pid(0);
+    delay(1000);
     // t.turn_to_nest_pid(1);
     // delay(1000);
     // t.turn_to_nest_pid(2);
@@ -200,39 +266,39 @@ void test_turntable()
     // t.turn_to_nest_pid(8);
     // delay(1000);
 
-    t.turn_to_push_pid(0);
-    t.push_nest();
-    delay(1000);
-    t.turn_to_push_pid(1);
-    t.push_nest();
-    delay(1000);
-    t.turn_to_push_pid(2);
-    t.push_nest();
-    delay(1000);
-    t.turn_to_push_pid(3);
-    t.push_nest();
-    delay(1000);
-    t.turn_to_push_pid(4);
-    t.push_nest();
-    delay(1000);
-    t.turn_to_push_pid(5);
-    t.push_nest();
-    delay(1000);
-    t.turn_to_push_pid(6);
-    t.push_nest();
-    delay(1000);
-    t.turn_to_push_pid(7);
-    t.push_nest();
-    delay(1000);
-    t.turn_to_push_pid(8);
-    t.push_nest();
-    delay(1000);
+    // t.turn_to_push_pid(0);
+    // t.push_nest();
+    // delay(1000);
+    // t.turn_to_push_pid(1);
+    // t.push_nest();
+    // delay(1000);
+    // t.turn_to_push_pid(2);
+    // t.push_nest();
+    // delay(1000);
+    // t.turn_to_push_pid(3);
+    // t.push_nest();
+    // delay(1000);
+    // t.turn_to_push_pid(4);
+    // t.push_nest();
+    // delay(1000);
+    // t.turn_to_push_pid(5);
+    // t.push_nest();
+    // delay(1000);
+    // t.turn_to_push_pid(6);
+    // t.push_nest();
+    // delay(1000);
+    // t.turn_to_push_pid(7);
+    // t.push_nest();
+    // delay(1000);
+    // t.turn_to_push_pid(8);
+    // t.push_nest();
+    // delay(1000);
     
-    // while(true)	
-    // {
-    // 	std::cout << t.read_pot() << std::endl;
-    // 	delay(50);
-    // }
+    while(true)	
+    {
+    	std::cout << t.read_pot() << std::endl;
+    	delay(50);
+    }
 }
 //Demo functions
 // void demo_turntable()
