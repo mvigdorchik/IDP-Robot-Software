@@ -243,7 +243,7 @@ void robot::allow_egg_refill(int time)
     this->go(0);
     delay(time);
     this->go_time(170, 255, false); //TODO Calibrate the amount the robot returns to line up again
-    this->go_time(80, 193, false);
+    this->go_time(148, 163, false);
 }
 
 // void robot::go(unsigned char speed)

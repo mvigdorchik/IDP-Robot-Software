@@ -69,10 +69,10 @@ void turntable::turn_to_push_pid(int nest)
 	    target = 122;
 	    break;
 	case 3 :
-	    target = 150;
+	    target = 154;
 	    break;
 	case 4 :
-	    target = 180;
+	    target = 184;
 	    break;
 	case 5 :
 	    target = 214;
@@ -303,11 +303,11 @@ Egg turntable::measure_egg_type()
     bool is_yellow;
     if(is_big)
     {
-	is_yellow = rlink.request(ADC1) < 1.17*no_egg_reading;
+	is_yellow = rlink.request(ADC3) > 180;
     }
     else
     {
-	is_yellow = rlink.request(ADC1) < 1.17*no_egg_reading; //TODO change the calibration of this
+	is_yellow = rlink.request(ADC3) > 170; //TODO change the calibration of this
     }
     
     Egg result;
@@ -381,30 +381,31 @@ int turntable::place_egg()
     if(DEBUG) std::cout << "Nest number is: " << nest_num << std::endl;
 
     //Code for indicator lights
-    int current_state = rlink.request(READ_PORT_1) & 0b00000111;
-    int output = 0;
+    int current_state = rlink.request(READ_PORT_1) | 0b11111000;
+    int output = 0b11111111;
     switch (type) {
     case BIG_YELLOW: {
-	output = 1 << 3;
+	output = 0b11110111;
 	break;
     }
     case BIG_PINK: {
-	output = 1 << 4;
+	output = 0b11101111;
 	break;
     }
     case SMALL_YELLOW: {
-	output = 1 << 5;
+	output =  0b11011111;
 	break;
     }
     case SMALL_BLUE: {
-	output = 1 << 6;
+	output =   0b10111111;
 	break;
     }
-default:
+    default:
+	output = 0b11111111;
 	break;
     }
-    output |= 0b1000000;
-    rlink.command(WRITE_PORT_1, output | current_state);
+    output &= type >= 2 ? 0b11111111 : 0b01111111; //Not valid for big eggs 
+    rlink.command(WRITE_PORT_1, output & current_state);
     
     if(nest_num == -1)
 	return -1; //Time to leave with full nests
