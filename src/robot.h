@@ -10,6 +10,8 @@
 #include <map>
 #include "point.h"
 #include "line.h"
+#include "palette.h"
+#include "arm.h"
 
 #define ROBOT_RAMP_TIME 255 //Value from 0-254 (255 is default value) to increase time to ramp up
 #define ROTATION_CALIBRATION 16 //Converts angles into motor times by multiplying, assuming max speed
@@ -24,6 +26,8 @@
  * Object used to send commands and receive sensor readings from the robot.
  */
 extern robot_link rlink;
+extern arm a;
+extern palette p;
 extern std::map<std::string, point> junction_points;
 
 /**

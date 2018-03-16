@@ -88,18 +88,17 @@ int main()
 	a.move_arm(1); //Ensure pneumatics are in correct start positions
 	t.move_ejector(0);
 	start_to_pallette(); // Align with pallette, also moves the arm up before aligning
-	// delay(5000);
-	// r.allow_egg_refill(1000);
 
 	p.reset();
 	std::cout << "RESET" << std::endl;
 	delay(1000);
-	for(int j = 0; j < 3; j++)
+	a.move_arm(1);
+	for(int j = 0; j < 2; j++)
 	{
 	for(int i = 0; i < 6; i++)
 	{
 	    p.rotate(i == 4 ? 3 : 2);
-	    delay(3000);
+	    delay(4000);
 	    t.place_egg();
 	    // Egg type = t.measure_egg_type();
 	    // int nest = t.determine_nest(type);
@@ -110,8 +109,8 @@ int main()
 	    // 	t.jiggle_table();
 	    // a.move_arm(1);
 	}
-	if(j<=1)
-	    r.allow_egg_refill(1);
+	if(j<=0)
+	    r.allow_egg_refill(6000);
 	}
 	a.move_arm(0);
 	pallette_to_curve();
@@ -128,20 +127,25 @@ int main()
 	    r.turn_to_line(1, false, true);
 	    r.follow_line_straight(10000, true);
 	    r.turn_to_line(0, true, true);
-	    r.go_time(20, 255, false);
 	}
+	r.go_time(20, 255, false);
 	a.move_arm(1);
-	delay(300);
-	r.turn_angle(30);
+	r.turn_angle(25);
 	r.go_time(10, 127, false);
 	for(int i =0; i < 7; i++)
 	{
 	    if((i % 2 != 0) /* || t.nests[i].size() == 0 */)
+	    {
 		continue;
-	    t.turn_to_push_pid(i);
+		//TODO, add the nests size condition to allow turning
+	    }
+	    bool jammed = t.turn_to_push_pid(i);
 	    t.push_nest();
+	    t.push_nest();
+	    if(jammed)
+		t.jiggle_table();
 	    r.turn_angle(340);
-	    delay(200);
+	    // delay(200);
 	}
 	
 	r.turn_to_line(0, false, true);
@@ -157,13 +161,16 @@ int main()
 	for(int i =0; i < 9; i++)
 	{
 	    if((i % 2 == 0 && i != 8) /* || t.nests[i].size() == 0 */)
+	    {
 		continue;
-	    t.turn_to_push_pid(i);
+	    }
+	    bool jammed = t.turn_to_push_pid(i);
 	    t.push_nest();
-	    delay(200);
+	    t.push_nest();
+	    if(jammed)
+		t.jiggle_table();
 	    r.turn_angle(20);
 	}
-	delay(3000);
 	
 	r.turn_to_line(1, false, true);
 	r.follow_line_straight(10000, true);
@@ -184,9 +191,9 @@ int main()
  */
 void start_to_pallette()
 {
-    // int path[4] = {2, 2, 1, 2};
-    // r.take_path(path, 4);
-    r.follow_line_straight(10000, true);
+    int path[4] = {2, 2, 1, 2};
+    r.take_path(path, 4);
+    // r.follow_line_straight(10000, true);
 
     r.turn_to_line(0, false,true);
     r.follow_line_straight(110, false); //Used to be distance of 60
@@ -225,8 +232,9 @@ void temp_turn_table(int nests)
 void determine_start_params()
 {
     int beacon;
-    //beacon = r.read_beacon();
-    beacon = 4; //TODO REMOVE THIS
+    beacon = r.read_beacon();
+    // beacon = 3; //TODO REMOVE THIS
+    std::cout << beacon << std::endl;
     switch (beacon) {
     case 1: 
 	t.small_egg = SMALL_BLUE;
@@ -259,8 +267,8 @@ void determine_start_params()
 void test_turntable()
 {
     a.move_arm(1);
-    t.turn_to_nest_pid(0);
-    delay(1000);
+    // t.turn_to_nest_pid(0);
+    // delay(1000);
     // t.turn_to_nest_pid(1);
     // delay(1000);
     // t.turn_to_nest_pid(2);
@@ -299,8 +307,10 @@ void test_turntable()
     // t.turn_to_push_pid(6);
     // t.push_nest();
     // delay(1000);
-    // t.turn_to_push_pid(7);
-    // t.push_nest();
+    bool timeout = t.turn_to_push_pid(7);
+    t.push_nest();
+    if(timeout)
+	t.jiggle_table();
     // delay(1000);
     // t.turn_to_push_pid(8);
     // t.push_nest();

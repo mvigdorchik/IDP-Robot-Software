@@ -100,7 +100,7 @@ public:
      * @param next_nest Which nest to align with ejector
      * @see turn_to_nest_pid()
      */
-    void turn_to_push_pid(int next_nest);
+    bool turn_to_push_pid(int next_nest);
 
     /**
     * Turns the turntable a given angle using a PID controller and a continuous sensor reading.
@@ -109,7 +109,7 @@ public:
     * @param clockwise Determines direction to turn.
     * @param degrees Number of degrees to turn.
     */
-    void turn_angle_pid(int target_angle);
+    bool turn_angle_pid(int target_angle);
 
     /**
     * Turns the turntable for a given number of degrees based on time and a calibration constant.

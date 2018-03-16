@@ -238,12 +238,17 @@ void robot::return_to_curve()
 
 void robot::allow_egg_refill(int time)
 {
+    a.move_arm(0);
+    p.reset();
+    delay(1000);
     this->follow_line_straight(50 , true); //May need to adjust distance to go far enough.
     this->follow_line_straight(140, false);
     this->go(0);
     delay(time);
     this->go_time(170, 255, false); //TODO Calibrate the amount the robot returns to line up again
     this->go_time(148, 163, false);
+    delay(100);
+    a.move_arm(1);
 }
 
 // void robot::go(unsigned char speed)
@@ -325,6 +330,11 @@ void robot::go_to_line(int timeout)
 
 int robot::read_beacon()
 {
+    static int attempts = 0;
+    attempts++;
+    if(attempts > 5)
+	return 3; //If it takes too long just guess 3, color sensing doesnt really work and delivery 2 is closer
+    
     rlink.command(WRITE_PORT_1,0b00000100);
     // rlink.command(WRITE_PORT_1,0b11111111);
     bool last_state = false;

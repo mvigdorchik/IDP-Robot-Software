@@ -55,7 +55,7 @@ void turntable::turn_to_nest_pid(int nest)
     turn_angle_pid(target);
 }
 
-void turntable::turn_to_push_pid(int nest)
+bool turntable::turn_to_push_pid(int nest)
 {
     int target;
     switch (nest) {
@@ -81,7 +81,7 @@ void turntable::turn_to_push_pid(int nest)
 	    target = 246;
 	    break;
 	case 7 :
-	    target = 7;
+	    target = 4;
 	    break;
 	case 8 :
 	    target = 35;
@@ -89,12 +89,11 @@ void turntable::turn_to_push_pid(int nest)
 	default :
 	    target = 65;
     }
-    turn_angle_pid(target);
-    std::cout << "target is:" << target << std::endl;
+    return turn_angle_pid(target);
 }
 
 //TODO !!!!
-void turntable::turn_angle_pid(int target)
+bool turntable::turn_angle_pid(int target)
 {
     double min = -127.0;
     double max = 127.0;
@@ -105,10 +104,11 @@ void turntable::turn_angle_pid(int target)
     int cycles_in_tol = 0;
     int MAX_TIME = 4500;
     stopwatch timeout;
+    bool timed_out;
     // if(DEBUG) std::cout << "Target" << target << std::endl;
     timeout.start();
     // while (std::abs((float)(val - target)) > TURNTABLE_tol || std::abs((float)inc) > 10*TURNTABLE_tol) {
-    while (cycles_in_tol < 15 && timeout.read() < MAX_TIME) {
+    while (cycles_in_tol < 15 && (timed_out = (timeout.read() < MAX_TIME))) {
 	// std::cout << cycles_in_tol << std::endl;
 	// if(DEBUG) std::cout << "val is " << val << std::endl;
 	// if(DEBUG) std::cout << "target is " << target << std::endl;
@@ -125,6 +125,8 @@ void turntable::turn_angle_pid(int target)
 	    cycles_in_tol = 0;
     }
     this->turn(true, 0);
+    std::cout << "TIMEOUT is" << !timed_out << std::endl;
+    return !timed_out;
 }
 
 void turntable::turn(bool clockwise, int speed)
@@ -299,7 +301,7 @@ Egg turntable::measure_egg_type()
     is_big = rlink.request(READ_PORT_0) & 0b00100000;
     is_big = !is_big; //The sensor returns 1 when it is small so fix that
     rlink.command(WRITE_PORT_0, current_values & 0b10111111); //Turn off the LED to save current
-    std::cout << is_big << std::endl;
+    // std::cout << is_big << std::endl;
     bool is_yellow;
     if(is_big)
     {
@@ -307,7 +309,7 @@ Egg turntable::measure_egg_type()
     }
     else
     {
-	is_yellow = rlink.request(ADC3) > 170; //TODO change the calibration of this
+	is_yellow = rlink.request(ADC3) > 175; //TODO change the calibration of this
     }
     
     Egg result;
@@ -329,7 +331,7 @@ int turntable::determine_nest(Egg egg_type)
 	{
 	    if(i % 2 == 1) //only want even nests
 		continue;
-	    if(nests[i].size() < 4) //4 eggs is a full nest
+	    if(nests[i].size() < 3) //4 eggs is a full nest
 	    {
 		int egg_count = 0;
 		//Count the eggs of egg_type to ensure that there is only 0 or 1. 
@@ -404,7 +406,7 @@ int turntable::place_egg()
 	output = 0b11111111;
 	break;
     }
-    output &= type >= 2 ? 0b11111111 : 0b01111111; //Not valid for big eggs 
+    output &= type >= 2 ? 0b01111111 : 0b01111111; //Not valid for big eggs 
     rlink.command(WRITE_PORT_1, output & current_state);
     
     if(nest_num == -1)
